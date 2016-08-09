@@ -58,13 +58,13 @@ public class login_fragment extends Fragment {
     private String token;
     public static AppUser appuser;
     private JSONObject userjson;//全局的userjson
-
+    private static SharedPreferences sharedPreference;
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.login, container, false);
         TAG = "login_fragment";
         init();
-
+        sharedPreference = view.getContext().getSharedPreferences("userInfo", Context.MODE_PRIVATE);
         login_right = (Button) view.findViewById(R.id.login_right);
         login_right.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -200,14 +200,16 @@ public class login_fragment extends Fragment {
                                     if (!obj.get("code").toString().equals("10002")) {
                                         Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
                                     } else {
-                                        JSONObject json = (JSONObject) obj.get("object");
+                                        final JSONObject json = (JSONObject) obj.get("object");
                                         MainActivity.city = json.get("region").toString();
+
                                         LogUtils.v(MainActivity.city);
+                                        saveCity();
                                         Thread.sleep(1000);
                                     }
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
                                 } catch (JSONException e) {
+                                    e.printStackTrace();
+                                } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -224,12 +226,22 @@ public class login_fragment extends Fragment {
         }
     }
 
+    private void saveCity() {
+        final SharedPreferences.Editor editor = sharedPreference.edit();//获取编辑器
+        try{
+            editor.putString("currcity", MainActivity.city);
+            LogUtils.v("editor"+editor.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        editor.commit();
+    }
+
     //存储登陆返回回来的用户信息
     //写入sharedpreference
     private void saveUser() {
-        SharedPreferences sharedPreferences = view.getContext().getSharedPreferences("userInfo", Context.MODE_PRIVATE);
-            final SharedPreferences.Editor editor = sharedPreferences.edit();//获取编辑器
-            //根据mobile获取到username然后存到sharedpreference中
+
+            final SharedPreferences.Editor editor = sharedPreference.edit();//获取编辑器
             try {
                 editor.putString("id", userjson.getString("id"));
                 editor.putString("realname", userjson.getString("realName"));
@@ -242,7 +254,6 @@ public class login_fragment extends Fragment {
                 editor.putString("phone", userjson.getString("phone"));
                 editor.putString("email", userjson.getString("email"));
                 editor.putString("token", Digests.decrypt(token));
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
