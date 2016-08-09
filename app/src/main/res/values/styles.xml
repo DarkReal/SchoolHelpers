@@ -1,20 +1,265 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-    </style>
 
-    <style name="AppTheme.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+
+    <style name="popup_anim">
+        <item name="android:windowEnterAnimation">@anim/alpha</item>
+        <item name="android:windowExitAnimation">@anim/alpha_remove</item>
+    </style>
+
+    <style name="activityTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+
+    </style>
+
+    <style name="myProgressBarStyleLarge" >
+        　　<item name="android:indeterminateDrawable">@drawable/progress_large</item>
+        　　<item name="android:minWidth">76dip</item>
+        　　<item name="android:maxWidth">76dip</item>
+        　　<item name="android:minHeight">76dip</item>
+        　　<item name="android:maxHeight">76dip</item>
+    </style>
+
+    <style name="base_listview_style" parent="@android:style/Widget.ListView">
+        <item name="android:scrollbarThumbVertical">@drawable/city_base_list_scrollbar_handle</item>
+        <item name="android:fadingEdgeLength">0.0dip</item>
+        <item name="android:alwaysDrawnWithCache">true</item>
+        <item name="android:listSelector">@drawable/city_base_list_selector</item>
+        <item name="android:drawSelectorOnTop">false</item>
+        <item name="android:cacheColorHint">@null</item>
+        <item name="android:divider">@null</item>
+        <item name="android:dividerHeight">0.0dip</item>
+    </style>
+
+    <style name="base_large_progressbar_style">
+        <item name="android:maxWidth">38.0dip</item>
+        <item name="android:maxHeight">38.0dip</item>
+        <item name="android:indeterminateDrawable">@anim/base_loading_large_anim</item>
+        <item name="android:minWidth">38.0dip</item>
+        <item name="android:minHeight">38.0dip</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="mypopwindow_anim_style">
+        <item name="android:windowEnterAnimation">@anim/popshow_anim</item>
+        <item name="android:windowExitAnimation">@anim/pophidden_anim</item>
+    </style>
+
+    /***
+    底部四个按钮------------------------------------------------------------------------
+    ***/
+
+    <style name="bottom_bar">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:paddingBottom">2dp</item>
+    </style>
+    <style name="bottom_bar_image">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+    </style>
+    <style name="bottom_bar_text">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">12dp</item>
+        <item name="android:layout_weight">2</item>
+    </style>
+
+
+
+    <style name="xiaozhitiao_lianxiren">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">18dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+
+    /***
+    底部四个按钮------------------------------------------------------------------------
+    ***/
+
+    /***
+    公共------------------------------------------------------------------------
+    ***/
+
+    <style name="bigTitle">
+        <item name="android:layout_height">45dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">#ffffff</item>
+    </style>
+
+    /***
+    公共------------------------------------------------------------------------
+    ***/
+
+
+    /***
+    我的面板------------------------------------------------------------------------
+    ***/
+
+    <style name="wodeziti">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">#000000</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="wodejiantou">
+        <item name="android:src">@drawable/goin</item>
+        <item name="android:layout_width">15dp</item>
+        <item name="android:layout_height">15dip</item>
+        <item name="android:layout_marginRight">10dip</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="wodexiahuaxian">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0.5dp</item>
+        <item name="android:background">#cdcdcd</item>
+        <item name="android:layout_marginLeft">40dp</item>
+    </style>
+
+    <style name="xiahuaxian">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0.5dp</item>
+        <item name="android:background">#cdcdcd</item>
+    </style>
+
+    <style name="wodeanniucontent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">#eaeaea</item>
+    </style>
+
+    <style name="gerenziliao_xiaojiantou">
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:src">@drawable/back</item>
+    </style>
+    <style name="gerenziliao_biaoti">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">16dp</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+    <style name="gerenziliao_xiaozi">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">16dp</item>
+        <item name="android:textColor">@color/xiaozhitiao_message_lianxiren</item>
+    </style>
+
+    <style name="gerenziliao_liebiao1">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">100dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:textColor">#000000</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">15dp</item>
+    </style>
+
+    <style name="gerenziliao_liebiao2">
+        <item name="android:textCursorDrawable">@color/black</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:focusable">false</item>
+        <item name="android:background">#ffffff</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">200dp</item>
+        <item name="android:gravity">right|center_vertical</item>
+        <item name="android:textColor">#000000</item>
+        <item name="android:textSize">15dp</item>
+    </style>
+
+    <style name="gerenziliao_liebiaobg">
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_marginTop">1dp</item>
+        <item name="android:background">#ffffff</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="xiaotubiao">
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginRight">10dp</item>
+        <!--<item name="android:layout_marginTop">10dp</item>-->
+    </style>
+
+    /***
+    我的简历------------------------------------------------------------------------
+    ***/
+
+    <style name="jianlibutton">
+        <item name="android:layout_gravity">center_vertical|center_horizontal</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:background">#FFFFFF</item>
+    </style>
+    <!--简历按钮中的加号-->
+    <style name="jianlibtntxtadd">
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:text">+</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/normal_green</item>
+        <item name="android:layout_marginRight">5dp</item>
+    </style>
+
+    <style name="jianlibtntxt">
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/normal_green</item>
+    </style>
+
+    <style name="myratingbar">
+        <item name="android:progressDrawable">@drawable/myratingbar</item>
+        <item name="android:minHeight">36dip</item>
+        <item name="android:maxHeight">36dip</item>
+    </style>
+
+
+
+    <style name="Animation.Popup" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
 
 </resources>

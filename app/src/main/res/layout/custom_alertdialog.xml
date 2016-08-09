@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/white"
+              android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/warn"
+                android:layout_margin="10dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="您当前还没有创建简历，是否前往个人中心一键投递简历"
+                android:lineSpacingExtra="3dp"
+                android:layout_margin="10dp"
+                android:id="@+id/title"
+                />
+    </LinearLayout>
+    <View
+        style="@style/xiahuaxian"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="取消"
+            android:textColor="@color/dark_gray"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center_vertical"
+            android:id="@+id/dialog_cancel"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="确定"
+            android:textColor="@color/normal_green"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center_vertical"
+            android:id="@+id/dialog_submit"/>
+
+    </LinearLayout>
+</LinearLayout>

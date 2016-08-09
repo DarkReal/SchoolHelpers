@@ -1,0 +1,23 @@
+<resources>
+
+    <!-- Copy one of these attributes to your own theme (choose either dark or light).
+
+    -->
+
+    <!-- Don't touch this -->
+    <attr name="numberPickerStyle" format="reference" />
+
+
+
+    <style name="NPWidget">
+        <item name="android:textAppearance">?android:attr/textAppearance</item>
+    </style>
+
+    <style name="NPWidget.NumberPicker">
+        <item name="android:orientation">vertical</item>
+        <item name="android:fadingEdge">vertical</item>
+        <item name="android:fadingEdgeLength">50dip</item>
+    </style>
+
+
+</resources>

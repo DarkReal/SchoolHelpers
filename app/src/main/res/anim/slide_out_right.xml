@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:interpolator/accelerate_decelerate"
+    android:valueFrom="0"
+    android:valueTo="800"
+    android:valueType="floatType"
+    android:propertyName="X"
+    android:duration="500" />
+
+    <!--
+        accelerate_decelerate在状态变化中先是加速，后是减速，使用户视觉上平滑过渡。
+        android:propertyName用于动画的维度，X表示横向，(若想设置透明度则维度是alpha)
+        view的setX()中的参数是float，所以设置valueType为floatType。
+        From设置为-1280，因为这个值对于终端设备而言，-1280个像素位可以确保从不可视的位置移入。
+        如果我们没有设置From，系统会根据当前值来设定初始值。-->

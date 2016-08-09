@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              style="@style/wodeanniucontent"
+              android:id="@+id/root_tongzhi">
+    <RelativeLayout
+        style="@style/bigTitle">
+        <ImageView
+            style="@style/gerenziliao_xiaojiantou"
+            android:id="@+id/backTowode_tongzhi"/>
+        <TextView
+            style="@style/gerenziliao_biaoti"
+            android:text="通知"/>
+        <TextView
+            style="@style/gerenziliao_xiaozi"
+            android:text="清空"
+            android:id="@+id/qingkong_tongzhi"/>
+    </RelativeLayout>
+
+
+    <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/view_no_border"
+            android:id="@+id/tongzhilist"
+            android:layout_marginTop="10dp">
+    </ListView>
+
+</LinearLayout>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+<RelativeLayout android:layout_width="match_parent"
+                android:layout_height="45dip"
+                android:background="#ffffff">
+    <LinearLayout
+        android:layout_width="60dip"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:paddingTop="15dip"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/select_city_search"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:textColor="@color/normal_green"
+            android:textSize="13sp"
+            android:text="位置"
+            android:id="@+id/location"/>
+
+        <ImageView
+            android:layout_width="15dip"
+            android:layout_height="15dip"
+            android:background="@drawable/open_list"
+            android:layout_marginTop="2dip"
+            android:id="@+id/select_group_btn"/>
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/search_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerInParent="true"
+        android:background="@drawable/border"
+        android:ellipsize="none"
+        android:paddingBottom="5.0dip"
+        android:layout_marginRight="60dip"
+        android:paddingLeft="10.0dip"
+        android:paddingRight="30.0dip"
+        android:paddingTop="5.0dip"
+        android:textColor="#ff000000"
+        android:singleLine="true"
+        android:textSize="15.0sp"
+        android:layout_toRightOf="@+id/select_city_search"
+        />
+    <LinearLayout
+        android:layout_width="60dip"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:paddingTop="13dip"
+        android:layout_alignParentRight="true"
+        >
+        <ImageView
+            android:layout_width="20dip"
+            android:layout_height="20dip"
+            android:gravity="center_vertical|center_horizontal"
+            android:background="@drawable/city_search"
+            />
+    </LinearLayout>
+</RelativeLayout>
+
+</LinearLayout>

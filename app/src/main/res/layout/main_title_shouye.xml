@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="45dp"
+    android:background="#ffffff">
+    <LinearLayout
+        android:layout_width="70dip"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:paddingTop="15dip"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/select_location">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:textColor="@color/normal_green"
+            android:textSize="13sp"
+            android:text="位置"
+            android:id="@+id/located"/>
+
+        <ImageView
+            android:layout_width="15dip"
+            android:layout_height="15dip"
+            android:background="@drawable/open_list"
+            android:layout_marginTop="2dip"
+            />
+
+    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginTop="13dip"
+        android:gravity="center_horizontal"
+        android:text="首页"
+        android:textSize="20dp"
+        android:textColor="#000000"
+        android:layout_centerHorizontal="true"/>
+    <LinearLayout
+        android:layout_width="60dip"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:paddingTop="13dip"
+        android:layout_alignParentRight="true"
+        android:id="@+id/search_icon"
+        >
+    <ImageView
+        android:layout_width="20dip"
+        android:layout_height="20dip"
+        android:gravity="center_vertical|center_horizontal"
+        android:background="@drawable/city_search"
+        />
+    </LinearLayout>
+</RelativeLayout>

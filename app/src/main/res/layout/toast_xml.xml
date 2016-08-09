@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:background="@color/usual_gray"
+              android:layout_gravity="center_horizontal|center_vertical"
+              android:padding="25dip">
+        <ImageView
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:src="@drawable/success"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="成功投递"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="10dip"
+            android:id="@+id/toast_id"/>
+</LinearLayout>

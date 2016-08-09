@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingLeft="10dip"
+              android:paddingRight="10dip">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="选择的内容"
+        android:textColor="@color/normal_green"
+        android:textSize="10sp"
+        android:background="@drawable/layout_border"
+        android:id="@+id/select_group_content"
+        android:gravity="center_horizontal"
+        />
+</LinearLayout>

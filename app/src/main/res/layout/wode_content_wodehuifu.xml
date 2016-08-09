@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              style="@style/wodeanniucontent"
+              android:id="@+id/root_huifu">
+    <RelativeLayout
+        style="@style/bigTitle">
+        <ImageView
+            style="@style/gerenziliao_xiaojiantou"
+            android:id="@+id/backTowode_wodehuifu"/>
+        <TextView
+            style="@style/gerenziliao_biaoti"
+            android:text="我的回复"/>
+
+    </RelativeLayout>
+    <com.xxw.student.myView.mineScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/huifu_list">
+
+        </ListView>
+    </com.xxw.student.myView.mineScrollView>
+
+</LinearLayout>

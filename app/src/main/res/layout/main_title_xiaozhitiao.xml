@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent" android:layout_height="45dp"
+                android:background="#ffffff">
+    <LinearLayout
+        android:layout_width="180dp"
+        android:layout_height="44dp"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true">
+        <TextView
+            style="@style/xiaozhitiao_lianxiren"
+            android:text="消息"
+            android:textColor="#36ab60"
+            android:id="@+id/xiaozhitiao_message"/>
+        <TextView
+            style="@style/xiaozhitiao_lianxiren"
+            android:text="联系人"
+            android:id="@+id/xiaozhitiao_lianxiren"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="180dp"
+        android:layout_height="1dp"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true">
+        <View
+            style="@style/xiaozhitiao_lianxiren"
+            android:background="#36ab60"
+            android:id="@+id/xiaozhitiao_message_line"/>
+        <View
+            style="@style/xiaozhitiao_lianxiren"
+            android:id="@+id/xiaozhitiao_lianxiren_line"/>
+    </LinearLayout>
+    <ImageButton
+        android:layout_width="50dp"
+        android:layout_height="20dp"
+        android:scaleType="fitCenter"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="5dp"
+        android:src="@drawable/addfriend"
+        android:background="#ffffff"
+        android:id="@+id/addfrident"/>
+</RelativeLayout>

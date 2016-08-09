@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.xxw.student.view.pullrefresh_view
+    xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:fillViewport="true"
+              android:layout_marginTop="5dip"
+              android:background="@color/usual_gray"
+              android:orientation="vertical"
+              android:id="@+id/quanzi_index">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:background="@color/usual_gray">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:id="@+id/top_pic_link"
+            >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="今日精选"
+            android:textSize="15sp"
+            android:textColor="@color/black"
+            android:layout_marginLeft="10dip"
+            android:layout_marginTop="10dip"/>
+        <ImageView
+            android:src="@drawable/banner1"
+            android:layout_width="match_parent"
+            android:layout_height="150dip"
+            android:layout_marginLeft="10dip"
+            android:layout_marginRight="10dip"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2016年春季校招开始了！赶快戳进来！"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            android:layout_marginLeft="13dip"
+            android:layout_marginBottom="10dip"/>
+
+
+
+            <android.support.design.widget.CoordinatorLayout
+                android:id="@+id/main_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/usual_gray"
+                >
+
+                <ListView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/group_list_ever"
+                    android:background="@color/white"
+                    android:paddingBottom="1dip"
+                    android:layout_marginTop="10dp"
+                    />
+
+                <android.support.design.widget.FloatingActionButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|right"
+                    android:layout_margin="16dp"
+                    app:backgroundTint="#FF36AB60"
+                    app:rippleColor="#FF75CC84"
+                    android:id="@+id/fab"
+                    android:src="@drawable/fab_ic_add"
+                    app:layout_anchorGravity="bottom|right|end"
+                    app:borderWidth="0dp"/>
+
+            </android.support.design.widget.CoordinatorLayout>
+        </LinearLayout>
+    </ScrollView>
+    </com.xxw.student.view.pullrefresh_view>
+

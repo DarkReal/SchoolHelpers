@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:id="@+id/hjjl_edit_ever"
+              android:orientation="horizontal"
+    >
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:background="@color/white"
+        android:id="@+id/del_linear"
+        android:visibility="gone"
+        >
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/delete_icon"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="10dp"
+            />
+    </LinearLayout>
+    <LinearLayout style="@style/wodeanniucontent"
+              android:orientation="vertical"
+              android:layout_height="wrap_content">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="编号"
+        android:id="@+id/jnjj_list_id"
+        android:visibility="gone"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            style="@style/gerenziliao_liebiaobg"
+            android:layout_marginTop="10dp">
+            <TextView
+                style="@style/gerenziliao_liebiao1"
+                android:text="技能"/>
+            <TextView
+                style="@style/gerenziliao_liebiao2"
+                android:text="java"
+                android:id="@+id/jnjj_skill"/>
+        </LinearLayout>
+        <LinearLayout
+            style="@style/gerenziliao_liebiaobg"
+            >
+            <TextView
+                style="@style/gerenziliao_liebiao1"
+                android:text="掌握程度"/>
+
+
+            <com.xxw.student.view.RatingBarView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginTop="5dp"
+                app:starImageSize="40dp"
+                app:starCount="4"
+                app:starEmpty="@drawable/myratingbar_off"
+                app:starFill="@drawable/myratingbar_on"
+                android:id="@+id/skill_ratingbar"
+                />
+
+
+
+            <TextView
+                style="@style/gerenziliao_liebiao2"
+                android:layout_width="80dp"
+                android:layout_marginLeft="20dp"
+                android:text="熟练"
+                android:id="@+id/skilldegress"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+</LinearLayout>
+</LinearLayout>

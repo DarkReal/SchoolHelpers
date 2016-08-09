@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/white"
+    android:layout_alignParentTop="true">
+
+    <!--<include layout="@layout/detail_title"
+             android:layout_width="match_parent"
+             android:layout_height="45dip"
+             android:layout_alignParentTop="true"
+        />-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dip"
+        android:id="@+id/title_link">
+        <include layout="@layout/detail_title"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:layout_marginTop="47dip"
+        android:layout_marginBottom="47dip"
+        android:background="@color/white">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/usual_gray"
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/white">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="应聘你所不知道的事"
+                android:textSize="20sp"
+                android:layout_margin="10dip"
+                android:textColor="@color/black"
+                android:id="@+id/group_detail_title"
+                />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <ImageView
+                    android:layout_width="30dip"
+                    android:layout_height="30dip"
+                    android:src="@drawable/touxiang"
+                    android:layout_marginLeft="10dip"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="10dip">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="小薇姐"
+                        android:textSize="15sp"
+                        android:id="@+id/user_name"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2016-03-26"
+                        android:textSize="12sp"
+                        android:id="@+id/write_time"/>
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dip"
+                android:text="大家好，我是XXXXXX信息电子工程学院软工133的一名学长，现在是一名码农，为什么执意加上信息学院呢，不知道为什么总觉得这是一种自豪感，一种让人得以昂首挺胸的力量"
+                android:textColor="@color/black"
+                android:id="@+id/text_content"
+                />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@color/white"
+                android:layout_marginTop="10dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal">
+                    <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="评论区（1）"
+                    android:layout_margin="10dip"
+                    android:id="@+id/comment_count"
+                    android:layout_marginTop="10dp"
+                    android:layout_alignParentLeft="true"
+                    />
+                    <ImageView
+                        android:layout_width="20dip"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/like_unclick"
+                        android:id="@+id/company_like_pic"
+                        android:clickable="true"
+                        android:layout_gravity="center_vertical"
+                        android:layout_toLeftOf="@+id/like_count"
+
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="12"
+                        android:gravity="center_vertical|right"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="10dp"
+                        android:textColor="@color/normal_green"
+                        android:id="@+id/like_count"
+                        android:layout_alignParentRight="true"/>
+
+                </RelativeLayout>
+                <View
+                    style="@style/xiahuaxian"/>
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/comment_listview"
+                android:background="@drawable/layout_border"
+                android:paddingBottom="1dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        </RelativeLayout>
+    </ScrollView>
+    <include
+        layout="@layout/detail_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        />
+</RelativeLayout>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="55dp"
+    android:orientation="horizontal"
+    android:paddingTop="5dp">
+    <LinearLayout
+        style="@style/bottom_bar"
+        android:id="@+id/bottom_bar_shouye">
+        <ImageView
+            style="@style/bottom_bar_image"
+            android:src="@drawable/icon_selected_shouye"
+            android:id="@+id/bottom_bar_image_shouye"/>
+        <TextView
+            style="@style/bottom_bar_text"
+            android:text="首页"
+            android:textColor="@color/xiaozhitiao_message_lianxiren"
+            android:id="@+id/bottom_bar_text_shouye"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        style="@style/bottom_bar"
+        android:id="@+id/bottom_bar_quanzi">
+        <ImageView
+            style="@style/bottom_bar_image"
+            android:src="@drawable/icon_nomal_quanzi"
+            android:id="@+id/bottom_bar_image_quanzi"/>
+        <TextView
+            style="@style/bottom_bar_text"
+            android:text="圈子"
+            android:id="@+id/bottom_bar_text_quanzi"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        style="@style/bottom_bar"
+        android:id="@+id/bottom_bar_xiaozhitiao">
+        <ImageView
+            style="@style/bottom_bar_image"
+            android:src="@drawable/icon_nomal_xiaozhitiao"
+            android:id="@+id/bottom_bar_image_xiaozhitiao"/>
+        <TextView
+            style="@style/bottom_bar_text"
+            android:text="小纸条"
+            android:id="@+id/bottom_bar_text_xiaozhitiao"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        style="@style/bottom_bar"
+        android:id="@+id/bottom_bar_wode">
+        <ImageView
+            style="@style/bottom_bar_image"
+            android:src="@drawable/icon_nomal_wode"
+            android:id="@+id/bottom_bar_image_wode"/>
+        <TextView
+            style="@style/bottom_bar_text"
+            android:text="我的"
+            android:id="@+id/bottom_bar_text_wode"/>
+    </LinearLayout>
+
+
+</LinearLayout>

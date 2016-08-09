@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              style="@style/wodeanniucontent"
+              android:id="@+id/root_gerenziliao">
+    <RelativeLayout
+        style="@style/bigTitle"
+        android:layout_alignParentTop="true"
+        android:id="@+id/jnjj_top_line">
+        <ImageView
+            style="@style/gerenziliao_xiaojiantou"
+            android:id="@+id/backTojianli"/>
+        <TextView
+            style="@style/gerenziliao_biaoti"
+            android:text="技能简介"/>
+        <TextView
+            style="@style/gerenziliao_xiaozi"
+            android:text="编辑"
+            android:id="@+id/edit_btn"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/add_skill"
+        android:layout_below="@+id/jnjj_top_line"
+        android:orientation="vertical">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/jnjj_list"
+            >
+        </ListView>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="暂无技能简介"
+            android:textSize="18sp"
+            android:textColor="@color/normal_green"
+            android:gravity="center_horizontal|center_vertical"
+            android:visibility="gone"
+            android:id="@+id/noneWord"
+            android:layout_marginTop="20dp"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout  style="@style/jianlibutton"
+                   android:gravity="center_horizontal|center_vertical"
+                   android:layout_alignParentBottom="true"
+                   android:id="@+id/add_skill">
+        <TextView
+            style="@style/jianlibtntxtadd"
+            />
+        <TextView
+            style="@style/jianlibtntxt"
+            android:text="添加技能"
+            />
+    </LinearLayout>
+</RelativeLayout>

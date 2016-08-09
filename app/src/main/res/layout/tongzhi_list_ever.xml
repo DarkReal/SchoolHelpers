@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:padding="10dip"
+              android:background="@color/usual_gray">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="30dip"
+                    android:paddingBottom="30dip"
+                    android:paddingLeft="20dip"
+                    android:background="@color/white"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="20dip"
+                        android:text="恭喜你已被成功录取，点击查看工作信息！"
+                        android:textColor="@color/black"
+                        android:id="@+id/text_id"
+                        android:textSize="18dp"/>
+                    <ImageView
+                        style="@style/wodejiantou"
+                        android:layout_alignParentRight="true"
+                        />
+                </RelativeLayout>
+
+
+</LinearLayout>

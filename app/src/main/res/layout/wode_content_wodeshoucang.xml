@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              style="@style/wodeanniucontent"
+              android:id="@+id/root_shoucang">
+    <RelativeLayout
+        style="@style/bigTitle">
+        <ImageView
+            style="@style/gerenziliao_xiaojiantou"
+            android:id="@+id/backTowode_collect"/>
+        <TextView
+            style="@style/gerenziliao_biaoti"
+            android:text="我的收藏"/>
+
+    </RelativeLayout>
+
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/collect_list"
+        android:layout_marginTop="10dp"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="暂无收藏内容"
+        android:textSize="18sp"
+        android:textColor="@color/normal_green"
+        android:gravity="center_horizontal|center_vertical"
+        android:visibility="gone"
+        android:id="@+id/noneWord"
+        />
+</LinearLayout>
