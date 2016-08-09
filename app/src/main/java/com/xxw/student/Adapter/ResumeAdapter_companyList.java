@@ -44,6 +44,7 @@ public class ResumeAdapter_companyList extends BaseAdapter {
         TextView company_desc;
         TextView eachid;
         TextView count_job;
+        TextView company_city;
         ImageView company_pic;
 
     }
@@ -105,7 +106,7 @@ public class ResumeAdapter_companyList extends BaseAdapter {
             holder.eachid = (TextView) convertView.findViewById(R.id.company_id);
             holder.count_job = (TextView) convertView.findViewById(R.id.count_job);
             holder.company_pic = (ImageView) convertView.findViewById(R.id.company_pic);
-
+            holder.company_city = (TextView) convertView.findViewById(R.id.company_city);
             convertView.setTag(holder);
 
         } else {// 如果之前已经显示过该页面，则用viewholder中的缓存直接刷屏
