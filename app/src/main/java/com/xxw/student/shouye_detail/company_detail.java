@@ -5,17 +5,21 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lidroid.xutils.BitmapUtils;
 import com.xxw.student.MainActivity;
 import com.xxw.student.R;
+import com.xxw.student.fragment.contentFragment_shouye;
 import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
@@ -36,7 +40,7 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
     private Fragment[] company_detail_frag = new Fragment[2];
     private TextView[] select_btn = new TextView[2];
     private company_detail_index company_detail_index;
-    private com.xxw.student.shouye_detail.company_detail_job company_detail_job;
+    private company_detail_job company_detail_job;
     private TextView select_to_index,select_to_job;
     private View[] below_line = new View[2];
     private View line1,line2;
@@ -44,8 +48,11 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
     private GestureDetector gestureDetector;
     private String ids;
     private JSONObject ja;
-    private TextView company_name,location,count_job;
+    private TextView company_name,company_desc,company_city,count_job;
+    private ImageView company_pic;
     public static String company_id;
+    private static JSONObject company_jo;
+    private BitmapUtils bitmapUtils;
 
     private boolean[] page_select={false,false};
     @Override
@@ -56,57 +63,40 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
         ids=bundle.getString("id");
         //LogUtils.v("group_detail_id"+ids);
         company_id = ids;
-        init();
+
+        init();//初始化切换页的动作行为
         getDefault();
 
         setTxtEvent();
         setContentFragment();
     }
 
+    //获取公司对象
     private void getDefault() {
-        String url= Constant.getUrl()+"company/getCompanyById.htmls";
-        HashMap<String,String> map = new HashMap<String,String>();
-        map.put("id", ids);
-        try{
-            HttpThread ht = new HttpThread(url,map){
-                @Override
-                public void getObj(final JSONObject obj) throws JSONException {
-                    if(obj!=null){
-                        final String message = obj.get("message").toString();
-                        LogUtils.v("message: "+obj.get("message").toString());
-                        LogUtils.v("obj"+obj.toString());
-                        ja = obj.getJSONObject("object");
+        try {
+            for(int i=0;i<contentFragment_shouye.companyListja.length();i++){
+                final JSONObject json = contentFragment_shouye.companyListja.getJSONObject(i);
+                LogUtils.v(json.toString()+" id:"+json.get("id"));
+                try {
+                        if(json.get("id").toString().equals(company_id.toString())){
+                            company_desc.setText(json.get("companyDesc").toString());
+                            company_name.setText(json.get("companyName").toString());
+                            company_city.setText(json.get("city").toString()+"--"+json.get("address").toString());
+                            count_job.setText("共有n在招职位");
 
-                        LogUtils.v("ja-公司信息"+ja.toString());
-                        getHandler.mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    if (obj.get("code").toString().equals("-1"))
-                                        Toast.makeText(company_detail.this, message, Toast.LENGTH_SHORT).show();
-                                    else {
-                                        //更新帖子列表显示内容
-                                        //Toast.makeText(company_detail.this, message, Toast.LENGTH_SHORT).show();
-                                        company_name.setText(ja.get("company_name").toString());
-                                        location.setText(ja.get("location").toString());
-                                        count_job.setText("共有"+ja.get("job_count").toString()+"个在招职位");
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-
+                            company_desc.setText(json.get("companyDesc").toString());
+                            bitmapUtils.display(company_pic, Constant.getUrl() + "upload/media/images/" + json.get("companyPic").toString());
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 }
-            };
-            ht.start();
-
-        }catch (NullPointerException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
     }
+
 
 
     private void init() {
@@ -125,9 +115,13 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
         return_before= (LinearLayout) findViewById(R.id.return_before);
         return_before.setOnClickListener(this);
         gestureDetector = new GestureDetector(this,this);
+
         company_name = (TextView) findViewById(R.id.company_name);
-        location = (TextView) findViewById(R.id.location);
+        company_desc = (TextView) findViewById(R.id.company_desc);
+        company_city = (TextView) findViewById(R.id.company_city);
         count_job = (TextView) findViewById(R.id.count_job);
+        company_pic = (ImageView) findViewById(R.id.company_pic);
+        bitmapUtils = new BitmapUtils(company_detail.this);
     }
 
 
