@@ -299,7 +299,7 @@ public class city_select extends Activity implements OnClickListener {
 
 
     private CityDB openCityDB() {
-        String path = "/data/data/com.xxw.mobilecommunicationapp/"+CityDB.DATABASE_NAME;
+        String path = "/data/data/com.xxw.student/"+CityDB.DATABASE_NAME;
        /* LogUtils.v(path);*/
 
         File dbFile = new File(path);
