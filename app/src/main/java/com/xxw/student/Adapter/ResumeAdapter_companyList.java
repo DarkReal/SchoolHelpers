@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * 简历的adpter
+ * 公司列表的adapter
  * Created by DarkReal on 2016/7/24.
  */
 public class ResumeAdapter_companyList extends BaseAdapter {
