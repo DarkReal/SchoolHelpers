@@ -58,7 +58,6 @@ public class ResumeAdapter_jybj extends BaseAdapter {
     private static HashMap<String,String> hashMap;//每次单击某一项的时候就组成一个Map,方便存储
     public static String currentItem = "";//标记当前选中项
     private int currentItemInt = -1;
-    private String TAG = "ResumeAdapter_jybj";
     private static View mConvertView;
     private static boolean needtoshow = false;//默认不展示
     private Message msg;
