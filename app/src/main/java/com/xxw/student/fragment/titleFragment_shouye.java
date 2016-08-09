@@ -1,7 +1,9 @@
 package com.xxw.student.fragment;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -12,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.xxw.student.MainActivity;
 import com.xxw.student.R;
@@ -42,8 +45,13 @@ public class titleFragment_shouye extends Fragment {
         mcontainer = container;
         view=inflater.inflate(R.layout.main_title_shouye, container, false);
 
+        SharedPreferences preferences = getActivity().getSharedPreferences("userInfo",
+                Activity.MODE_PRIVATE);
+
+        MainActivity.city = preferences.getString("currcity","");
 
         located = (TextView) view.findViewById(R.id.located);
+        LogUtils.v("MainActivity.city"+MainActivity.city);
         located.setText(MainActivity.city);
         Intent intent = ((MainActivity)getActivity()).getIntent();
 
