@@ -18,6 +18,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lidroid.xutils.BitmapUtils;
 import com.xxw.student.R;
 import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
@@ -27,6 +28,7 @@ import com.xxw.student.utils.getHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +45,6 @@ public class company_detail_index extends Fragment {
     private LayoutInflater minflater;
     private PopupWindow pop;
 
-    private TextView comment_count;
     private TextView show_more;
     private ImageView detail_cancel;
 
@@ -51,17 +52,22 @@ public class company_detail_index extends Fragment {
     private ListView comment_list;
     private List<Map<String, Object>> dataList;
     private GestureDetector gestureDetector;
-    private String id = company_detail.company_id;
-    private JSONArray ja;
+    private  String id = company_detail.company_id;//获取到公司的id对应获取评论列表
+    private JSONArray ja;//盛放评论列表
+    private BitmapUtils bitmapUtils;
+
+    private ImageView company_pic;
+    private TextView company_details,company_address,company_website;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         minflater = inflater;
         mcontainer = container;
         view = inflater.inflate(R.layout.company_detail_index,container,false);
-
+        bitmapUtils = new BitmapUtils(view.getContext());
+        init();
         //initData
         getPinlunlist();
-        comment_count= (TextView) view.findViewById(R.id.comment_count);
         comment_list= (ListView) view.findViewById(R.id.company_index_comment);
         show_more = (TextView) view.findViewById(R.id.show_more);
         show_more.setOnClickListener(new View.OnClickListener() {
@@ -93,6 +99,29 @@ public class company_detail_index extends Fragment {
             }
         });
         return view;
+    }
+
+    /**
+     * 初始化
+     */
+    private void init() {
+        try {
+            company_pic = (ImageView) view.findViewById(R.id.company_pic);
+            company_details = (TextView) view.findViewById(R.id.company_detail);
+            company_address = (TextView) view.findViewById(R.id.company_address);
+            company_website = (TextView) view.findViewById(R.id.company_website);
+            JSONObject json = company_detail.company_json;
+            bitmapUtils.display(company_pic,Constant.getUrl() + "upload/media/images/" + json.get("companyPic").toString());
+            company_details.setText(json.get("companyDetail").toString());
+            company_address.setText("公司地址："+json.get("address").toString());
+            company_website.setText("公司网站："+json.get("website").toString());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+
     }
 
     private void getPinlunlist() {

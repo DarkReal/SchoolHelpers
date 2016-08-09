@@ -53,7 +53,7 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
     public static String company_id;
     private static JSONObject company_jo;
     private BitmapUtils bitmapUtils;
-
+    public static JSONObject company_json;
     private boolean[] page_select={false,false};
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,9 +79,10 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
                 LogUtils.v(json.toString()+" id:"+json.get("id"));
                 try {
                         if(json.get("id").toString().equals(company_id.toString())){
+                            company_json = json;
                             company_desc.setText(json.get("companyDesc").toString());
                             company_name.setText(json.get("companyName").toString());
-                            company_city.setText(json.get("city").toString()+"--"+json.get("address").toString());
+                            company_city.setText(json.get("city").toString());
                             count_job.setText("共有n在招职位");
 
                             company_desc.setText(json.get("companyDesc").toString());
