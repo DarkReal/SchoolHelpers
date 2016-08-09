@@ -1,6 +1,7 @@
 package com.xxw.student.fragment;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -13,16 +14,21 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lidroid.xutils.BitmapUtils;
+import com.xxw.student.Adapter.ResumeAdapter_companyList;
+import com.xxw.student.Adapter.ResumeAdapter_hjjl;
 import com.xxw.student.MainActivity;
 import com.xxw.student.PageModel.AppCompany;
 import com.xxw.student.R;
+import com.xxw.student.shouye_detail.company_detail;
 import com.xxw.student.utils.CompressImage;
 import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
@@ -69,8 +75,10 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
     private JSONArray ja;
     private JSONObject json;
     private BitmapUtils bitmapUtils;
-    private JSONArray companyListja;
-    private List<AppCompany> comList;
+    public static JSONArray companyListja;
+    private List<HashMap<String,String>> company_datalist;
+    private ResumeAdapter_companyList resumeAdapter_companyList;
+
 
     //存放图片的id
     private static ArrayList<String> imagesStr;
@@ -81,22 +89,7 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
     /**
      * 公司列表
      */
-    private String[] companyPic;
-
-    private String[] companyName;
-    private String[] companyDesc;
-
-
-    private String[] location = new String[]{
-            "杭州",
-            "北京",
-            "上海"
-    };
-    private int ids[] = new int[]{1,2,3};//所有公司的列表
-
-    private SimpleAdapter simple_adapter;
     private ListView company_list;
-    private List<Map<String, Object>> dataList;
 
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,Bundle savedInstanceState) {
 
@@ -120,42 +113,7 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
         images = new ArrayList<ImageView>();
 
         getIndexImage();//获取图片资源    并配置适配器
-//        getCompanyInfo();//从数据库中读取公司信息
         getCompanyList();
-
-
-        //下面列表的添加
-//        dataList=new ArrayList<Map<String, Object>>();
-//        for(int i=0;i<company_name.length;i++){
-//            Map<String, Object> company_list = new HashMap<String, Object>();
-//            company_list.put("company_name",company_name[i]);
-//            company_list.put("company_pic",company_pic[i]);
-//            company_list.put("job",job[i]);
-//            company_list.put("location",location[i]);
-//            company_list.put("id",ids[i]);
-//            dataList.add(company_list);
-//        }
-//        simple_adapter=new SimpleAdapter(this.getActivity(), dataList,R.layout.company_list_ever, new String[] {"company_name","company_pic","job","location","id"},
-//                new int[] {R.id.company_name,R.id.company_pic,R.id.job,R.id.location,R.id.company_id});
-//        company_list.setAdapter(simple_adapter);
-//        company_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//
-//                Intent intent = new Intent();
-//                intent.setClass(view.getContext(), company_detail.class);
-//                Bundle bundle = new Bundle();
-//                //获得单击部分的隐藏起来的company_id的text的值
-//                TextView tv = (TextView) view.findViewById(R.id.company_id);
-//                String ids = tv.getText().toString();
-//                bundle.putString("id", ids);
-//                intent.putExtras(bundle);
-//                startActivity(intent);
-//            }
-//        });
-//
-
-
         return view;
     }
 
@@ -176,7 +134,6 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
                         getHandler.mHandler.post(new Runnable() {
                             @Override
                             public void run() {
-
                                 try {
                                     if (!obj.get("code").toString().equals("10000"))
                                         Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
@@ -203,23 +160,42 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
     }
     //初始化公司列表
     private void filltheList() {
-//        try {
-//            for(int i=0 ;i < companyListja.length(); i++){
-//                comList.add((AppCompany) companyListja.get(i));
-//            }
-//            LogUtils.v(comList.toString());
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
+        company_datalist = new ArrayList<HashMap<String, String>>();
         try {
             for (int i = 0; i < companyListja.length(); i++) {
                 JSONObject jsonObject = (JSONObject) companyListja.get(i);
-
-
+                HashMap<String,String> company_map = new HashMap<String, String>();
+                company_map.put("companyName",jsonObject.get("companyName").toString());
+                company_map.put("companyDesc",jsonObject.get("companyDesc").toString());
+                company_map.put("companyId",jsonObject.get("id").toString());
+                company_map.put("count_job","共有n在招职位");
+                company_map.put("company_city",jsonObject.get("city").toString());
+                company_map.put("companyPic",jsonObject.get("companyPic").toString());
+                company_datalist.add(company_map);
+                LogUtils.v("company_datalist" + company_datalist.toString());
             }
         }catch (JSONException e){
             e.printStackTrace();
         }
+        resumeAdapter_companyList = new ResumeAdapter_companyList(view.getContext(), getActivity(), company_datalist, R.layout.company_list_ever, new String[]{"companyName","companyDesc", "companyId", "count_job","company_city"},
+                new int[]{R.id.company_name, R.id.company_desc, R.id.company_id, R.id.count_job,R.id.company_city});
+        company_list.setAdapter(resumeAdapter_companyList);
+
+        company_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent();
+                intent.setClass(view.getContext(), company_detail.class);
+                Bundle bundle = new Bundle();
+                //获得单击部分的隐藏起来的company_id的text的值
+                TextView tv = (TextView) view.findViewById(R.id.company_id);
+                String ids = tv.getText().toString();
+                bundle.putString("id", ids);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                LogUtils.v("click item!!!");
+            }
+        });
 
     }
 
@@ -235,97 +211,72 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
                         final String message = obj.get("message").toString();
                         LogUtils.v("--jsonstr--"+obj.toString());
                         LogUtils.v("message: "+obj.get("message").toString());
-                        try {
-                            if (!obj.get("code").toString().equals("10000"))
-                                Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
-                            else {
-                                ja = (JSONArray) obj.get("object");
-                                json = (JSONObject) ja.get(0);
 
-                                imagesStr.add(json.getString("pic1").toString());
-                                imagesStr.add(json.getString("pic2").toString());
-                                imagesStr.add(json.getString("pic3").toString());
+//                        getHandler.mHandler.post(new Runnable() {
+//                                @Override
+//                                public void run() {
+                                    try {
+                                        if (!obj.get("code").toString().equals("10000"))
+                                            Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+                                        else {
+                                            ja = (JSONArray) obj.get("object");
+                                            json = (JSONObject) ja.get(0);
 
-                                LogUtils.v("--shouye--"+imagesStr.toString());
+                                            imagesStr.add(json.getString("pic1").toString());
+                                            imagesStr.add(json.getString("pic2").toString());
+                                            imagesStr.add(json.getString("pic3").toString());
 
+                                            LogUtils.v("before_set_image" + imagesStr.size() + "");
+                                            viewPager.setAdapter(new ImageAdapter(imagesStr));
+                                            viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
-                                LogUtils.v("before_set_image"+imagesStr.size()+"");
-                                viewPager.setAdapter(new ImageAdapter(imagesStr));
-                                viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                                                //配合Adapter的currentItem字段进行设置。
+                                                @Override
+                                                public void onPageSelected(int arg0) {
 
-                                    //配合Adapter的currentItem字段进行设置。
-                                    @Override
-                                    public void onPageSelected(int arg0) {
+                                                    dots.get(arg0 % imagesStr.size()).setBackgroundResource(R.drawable.dot_focused);
+                                                    dots.get(oldPosition).setBackgroundResource(R.drawable.dot_normal);
+                                                    oldPosition = arg0 % imagesStr.size();
+                                                    handler.sendMessage(Message.obtain(handler, ImageHandler.MSG_PAGE_CHANGED, arg0, 0));
+                                                }
 
-                                        dots.get(arg0 % imagesStr.size()).setBackgroundResource(R.drawable.dot_focused);
-                                        dots.get(oldPosition).setBackgroundResource(R.drawable.dot_normal);
-                                        oldPosition = arg0 % imagesStr.size();
-                                        handler.sendMessage(Message.obtain(handler, ImageHandler.MSG_PAGE_CHANGED, arg0, 0));
-                                    }
+                                                @Override
+                                                public void onPageScrolled(int arg0, float arg1, int arg2) {
+                                                }
 
-                                    @Override
-                                    public void onPageScrolled(int arg0, float arg1, int arg2) {
-                                    }
-
-                                    //覆写该方法实现轮播效果的暂停和恢复
-                                    @Override
-                                    public void onPageScrollStateChanged(int arg0) {
-                                        switch (arg0) {
-                                            case ViewPager.SCROLL_STATE_DRAGGING:
-                                                handler.sendEmptyMessage(ImageHandler.MSG_KEEP_SILENT);
-                                                break;
-                                            case ViewPager.SCROLL_STATE_IDLE:
-                                                handler.sendEmptyMessageDelayed(ImageHandler.MSG_UPDATE_IMAGE, ImageHandler.MSG_DELAY);
-                                                break;
-                                            default:
-                                                break;
+                                                //覆写该方法实现轮播效果的暂停和恢复
+                                                @Override
+                                                public void onPageScrollStateChanged(int arg0) {
+                                                    switch (arg0) {
+                                                        case ViewPager.SCROLL_STATE_DRAGGING:
+                                                            handler.sendEmptyMessage(ImageHandler.MSG_KEEP_SILENT);
+                                                            break;
+                                                        case ViewPager.SCROLL_STATE_IDLE:
+                                                            handler.sendEmptyMessageDelayed(ImageHandler.MSG_UPDATE_IMAGE, ImageHandler.MSG_DELAY);
+                                                            break;
+                                                        default:
+                                                            break;
+                                                    }
+                                                }
+                                            });
+                                            viewPager.setCurrentItem(Integer.MAX_VALUE / 2);//默认在中间，使用户看不到边界
+                                            //初始化点的颜色情况
+                                            dots.get(0).setBackgroundResource(R.drawable.dot_focused);
+                                            //开始轮播效果
+                                            handler.sendEmptyMessageDelayed(ImageHandler.MSG_UPDATE_IMAGE, ImageHandler.MSG_DELAY);
                                         }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-                                });
-
-                                viewPager.setCurrentItem(Integer.MAX_VALUE / 2);//默认在中间，使用户看不到边界
-                                //初始化点的颜色情况
-                                dots.get(0).setBackgroundResource(R.drawable.dot_focused);
-
-                                //开始轮播效果
-                                handler.sendEmptyMessageDelayed(ImageHandler.MSG_UPDATE_IMAGE, ImageHandler.MSG_DELAY);
-
-
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                                }
+//                            });
+//                        }
                     }
-                }
-            };
+                };
             ht.start();
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-    }
-
-    private Bitmap get3Pic(String url) {
-        URL myFileUrl = null;
-        Bitmap bitmap = null;
-        try {
-            LogUtils.v(url);
-            myFileUrl = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        try {
-            HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection();
-            conn.setConnectTimeout(0);
-            conn.setDoInput(true);
-            conn.connect();
-            InputStream is = conn.getInputStream();
-            bitmap = BitmapFactory.decodeStream(is);
-            bitmap = CompressImage.compressImage(bitmap);//压缩
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return bitmap;
     }
 
     //onGestureListener的方法实现
