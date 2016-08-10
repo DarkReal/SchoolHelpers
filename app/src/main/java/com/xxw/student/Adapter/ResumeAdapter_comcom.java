@@ -157,9 +157,6 @@ public class ResumeAdapter_comcom extends BaseAdapter {
             }
         });
 
-
-
-
         return convertView;
 
     }
