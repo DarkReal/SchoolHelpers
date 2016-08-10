@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:text="---"
                 android:textSize="12sp"
-                android:id="@+id/job"
+                android:id="@+id/company_desc"
                 android:layout_marginBottom="8dip"
                 android:layout_weight="1"
                 />
@@ -115,7 +115,7 @@
                     android:layout_height="wrap_content"
                     android:text="杭州市"
                     android:textSize="12dip"
-                    android:id="@+id/location"
+                    android:id="@+id/company_city"
                     />
                 <TextView
                     android:layout_width="wrap_content"

@@ -39,13 +39,13 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="75dp"
                 android:text="网易(NASDAQ.NTFS)是中国领先的互联网公司，利用最先进的互联网技术，加强人与人之间信息的交流和共享，实现“网聚人的力量”.网易杭州研究"
                 android:layout_marginLeft="10dip"
                 android:layout_gravity="center_vertical"
                 android:textSize="15sp"
                 android:textColor="@color/light_gray"
-                android:id="@+id/company_name"
+                android:id="@+id/company_detail"
                 />
 
     </LinearLayout>
@@ -77,13 +77,15 @@
             android:textSize="15sp"
             android:textColor="@color/light_gray"
             android:layout_marginBottom="10dip"
+            android:id="@+id/company_address"
             />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="公司网站：http://www.163.com"
             android:textSize="15sp"
-            android:textColor="@color/light_gray"/>
+            android:textColor="@color/light_gray"
+            android:id="@+id/company_website"/>
         <ImageView
             android:layout_width="15dp"
             android:layout_height="15dp"
@@ -101,22 +103,19 @@
         android:orientation="vertical"
         android:background="@color/white"
         >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="评价 (3)"
-            android:textSize="18dip"
-            android:textColor="@color/dark_gray"
-            android:layout_margin="10dip"
-            android:id="@+id/comment_count"/>
-        <View
-            style="@style/xiahuaxian"/>
+
         <ListView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/company_index_comment"
-            android:descendantFocusability="beforeDescendants">
+            android:id="@+id/company_index_comment">
         </ListView>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="暂无评论，快来评论吧"
+            android:visibility="gone"
+            android:id="@+id/noneWord"
+            />
     </LinearLayout>
     </LinearLayout>
     </ScrollView>
@@ -127,4 +126,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         />
+
+
 </RelativeLayout>
