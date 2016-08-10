@@ -8,12 +8,19 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lidroid.xutils.BitmapUtils;
+import com.xxw.student.MainActivity;
 import com.xxw.student.R;
 import com.xxw.student.utils.Constant;
+import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
+import com.xxw.student.utils.getHandler;
 import com.xxw.student.view.GoodView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +42,7 @@ public class ResumeAdapter_comcom extends BaseAdapter {
         ImageView company_like_pic;
         TextView dz_count;
         String ispressed;//判断是否被选中了
+        String eachid;
     }
     private LayoutInflater mInflater;
     private List<HashMap<String, String>> list;
@@ -108,12 +116,15 @@ public class ResumeAdapter_comcom extends BaseAdapter {
         }
         bitmapUtils.display(holder.touxiang, Constant.getUrl() + "upload/media/images/" + list.get(position).get("touxiang"));
 
-        if(list.get(position).get("comment_like_pic").equals("1")){
-//            //当前用户点赞
+        if(list.get(position).get("comment_like_pic").toString()=="1"){
+//
             holder.company_like_pic.setImageResource(R.drawable.like_pressed);
         }else{
             holder.company_like_pic.setImageResource(R.drawable.like_unclick);
         }
+
+        holder.eachid = list.get(position).get("eachid").toString();
+
 
         if(Integer.parseInt(list.get(position).get("dz_count")) > 0){//点赞数不为0的时候,显示点赞数
             holder.dz_count.setVisibility(View.VISIBLE);
@@ -140,9 +151,9 @@ public class ResumeAdapter_comcom extends BaseAdapter {
                             finalHolder.dz_count.setText((Integer.parseInt(count) - 1) + "");
                         }
                         finalHolder.ispressed ="0";
-
+                        likeEvent(finalHolder);
                         break;
-                    case "0":
+                    case "0"://点赞
                         finalHolder.company_like_pic.setImageResource(R.drawable.like_pressed);
                         finalHolder.dz_count.setText((Integer.parseInt(finalHolder.dz_count.getText().toString()) + 1) + "");
                         finalHolder.dz_count.setVisibility(View.VISIBLE);
@@ -151,7 +162,9 @@ public class ResumeAdapter_comcom extends BaseAdapter {
                         finalHolder.company_like_pic.setImageResource(R.drawable.like_pressed);
                         goodView.setImage(activity.getResources().getDrawable(R.drawable.like_pressed));
                         goodView.show(finalHolder.company_like_pic);
+
                         finalHolder.ispressed ="1";
+                        likeEvent(finalHolder);
                         break;
                 }
             }
@@ -161,4 +174,44 @@ public class ResumeAdapter_comcom extends BaseAdapter {
 
     }
 
+    private void likeEvent(TextViewHolder finalHolder) {
+        HashMap<String,String> map = new HashMap<String, String>();
+        map.put("token", MainActivity.token);
+        map.put("id",finalHolder.eachid);
+        LogUtils.v(map.toString());
+        String url = Constant.getUrl()+"app/company/admireCompanyCom.htmls";
+        try{
+            HttpThread ht = new HttpThread(url,map){
+                @Override
+                public void getObj(final JSONObject obj) throws JSONException {
+                    if(obj!=null){
+                        final String message = obj.get("message").toString();
+                        LogUtils.v(obj.get("message").toString());
+                        LogUtils.v("obj" + obj.toString());
+
+                        getHandler.mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if (obj.get("code").toString().equals("-1"))
+                                        Toast.makeText(mcontext, message, Toast.LENGTH_SHORT).show();
+                                    else {
+                                        //更新帖子列表显示内容
+                                        Toast.makeText(mcontext, message, Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
+                }
+            };
+            ht.start();
+
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+    }
 }
