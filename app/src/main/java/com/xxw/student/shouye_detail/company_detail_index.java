@@ -208,6 +208,7 @@ public class company_detail_index extends Fragment implements View.OnClickListen
                     map.put("comment_value", json.get("comment").toString());
                     map.put("comment_like_pic", json.get("isAdmire").toString());//本人是否点赞
                     map.put("dz_count", json.get("admire").toString());//点赞数
+                    map.put("eachid",json.get("id").toString());
                     comment_dataList.add(map);
                 }
                 LogUtils.v(comment_dataList.toString());

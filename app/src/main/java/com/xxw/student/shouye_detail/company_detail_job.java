@@ -13,6 +13,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.xxw.student.Adapter.ResumeAdapter_jobList;
 import com.xxw.student.R;
 import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
@@ -35,18 +36,11 @@ import java.util.Map;
 public class company_detail_job extends Fragment {
     private View view;
     //公司图片
-    private ImageView job_pic;
-
-    private String[] job_name;
-    private String[] apply_time;
-    private String[] job_offer;
-    private String[] job_location;
-
-    private SimpleAdapter simple_adapter;
     private ListView job_list;
-    private List<Map<String, String>> dataList;
+    private List<HashMap<String, String>> dataList;
     private String id = company_detail.company_id;
     private JSONArray ja;
+    private ResumeAdapter_jobList resumeAdapter_jobList;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.company_detail_job,container,false);
@@ -57,10 +51,11 @@ public class company_detail_job extends Fragment {
     private void initData() {
 
         job_list= (ListView) view.findViewById(R.id.job_list);
-        String url= Constant.getUrl()+"job/getjoblist.htmls";
+        String url= Constant.getUrl()+"app/company/getRecruitByComId.htmls";
         HashMap<String,String> map = new HashMap<String,String>();
 
-        map.put("id", id);
+        map.put("companyId", company_detail.company_id);
+        LogUtils.v(map.toString());
         try{
             HttpThread ht = new HttpThread(url,map){
                 @Override
@@ -81,25 +76,29 @@ public class company_detail_job extends Fragment {
                                     else {
                                         //更新帖子列表显示内容
                                         //Toast.makeText(company_detail.this, message, Toast.LENGTH_SHORT).show();
-                                        dataList=new ArrayList<Map<String, String>>();
+                                        dataList=new ArrayList<HashMap<String, String>>();
                                         for(int i=0;i<ja.length();i++){
-                                            Map<String, String> job_map = new HashMap<String, String>();
+                                            HashMap<String, String> job_map = new HashMap<String, String>();
                                             JSONObject obj = (JSONObject) ja.get(i);
-                                            job_map.put("job_name",obj.get("job_name").toString());
-                                            job_map.put("apply_time",obj.get("fabu_time").toString());
-                                            job_map.put("job_offer",obj.get("salary").toString());
-                                            job_map.put("job_location",obj.get("location").toString());
-                                            job_map.put("job_id",obj.get("id").toString());
+                                            job_map.put("recruitName",obj.get("recruitName").toString());
+                                            job_map.put("createTime",obj.get("createTime").toString());
+                                            job_map.put("moneyMonth",obj.get("moneyMonth").toString());
+                                            job_map.put("workPlace",obj.get("workPlace").toString());
+                                            job_map.put("id",obj.get("id").toString());
+                                            job_map.put("pic",obj.get("pic").toString());
+
                                             dataList.add(job_map);
                                         }
 
-                                        simple_adapter=new SimpleAdapter(view.getContext(), dataList, R.layout.company_job_ever, new String[] {"job_name","apply_time","job_offer","job_location","job_id"},
+                                        resumeAdapter_jobList=new ResumeAdapter_jobList(view.getContext(),getActivity(), dataList, R.layout.company_job_ever, new String[] {"recruitName","createTime","moneyMonth","workPlace","id"},
                                                 new int[] {R.id.job_name, R.id.apply_time, R.id.job_offer, R.id.job_location, R.id.job_id});
 
-                                        job_list.setAdapter(simple_adapter);
+                                        job_list.setAdapter(resumeAdapter_jobList);
                                         job_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                             @Override
                                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
                                                 Intent intent = new Intent();
                                                 intent.setClass(view.getContext(),job_detail.class);
                                                 Bundle bundle=new Bundle();
