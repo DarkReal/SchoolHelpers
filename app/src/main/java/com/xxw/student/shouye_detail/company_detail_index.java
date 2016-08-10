@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -19,10 +20,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lidroid.xutils.BitmapUtils;
+import com.xxw.student.Adapter.ResumeAdapter_comcom;
+import com.xxw.student.MainActivity;
 import com.xxw.student.R;
 import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
+import com.xxw.student.utils.ResponseMessage;
 import com.xxw.student.utils.getHandler;
 
 import org.json.JSONArray;
@@ -39,7 +43,7 @@ import java.util.Map;
  * 公司详情页--公司简介
  * Created by DarkReal on 2016/4/11.
  */
-public class company_detail_index extends Fragment {
+public class company_detail_index extends Fragment implements View.OnClickListener{
     private View view;
     private ViewGroup mcontainer;
     private LayoutInflater minflater;
@@ -50,17 +54,23 @@ public class company_detail_index extends Fragment {
 
     private SimpleAdapter simple_adapter;
     private ListView comment_list;
-    private List<Map<String, Object>> dataList;
+    private ArrayList<HashMap<String, String>> comment_dataList;
     private GestureDetector gestureDetector;
     private  String id = company_detail.company_id;//获取到公司的id对应获取评论列表
     private JSONArray ja;//盛放评论列表
+    private JSONObject jo;//单个评论的时候
     private BitmapUtils bitmapUtils;
 
     private ImageView company_pic;
     private TextView company_details,company_address,company_website;
+    private ResumeAdapter_comcom resumeAdapter_comcom;
+    private TextView noneWord;
+    private EditText comment_edit;
+    private TextView comment_send;
+    private HashMap<String,String> map;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         minflater = inflater;
         mcontainer = container;
         view = inflater.inflate(R.layout.company_detail_index,container,false);
@@ -116,6 +126,11 @@ public class company_detail_index extends Fragment {
             company_address.setText("公司地址："+json.get("address").toString());
             company_website.setText("公司网站："+json.get("website").toString());
 
+            noneWord = (TextView) view.findViewById(R.id.noneWord);
+            comment_edit = (EditText) view.findViewById(R.id.comment_edit);
+            comment_send = (TextView) view.findViewById(R.id.comment_send);
+
+            comment_send.setOnClickListener(this);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -125,10 +140,12 @@ public class company_detail_index extends Fragment {
     }
 
     private void getPinlunlist() {
-        String url= Constant.getUrl()+"ComCompany/getpinlun.htmls";
+        String url= Constant.getUrl()+"app/company/getComCom.htmls";
         HashMap<String,String> map = new HashMap<String,String>();
 
-        map.put("id", id);
+        map.put("companyId", id);
+        map.put("pageNow", "0");
+
         try{
             HttpThread ht = new HttpThread(url,map){
                 @Override
@@ -137,9 +154,11 @@ public class company_detail_index extends Fragment {
                         final String message = obj.get("message").toString();
                         LogUtils.v(obj.get("message").toString());
                         LogUtils.v("obj" + obj.toString());
-                        ja = obj.getJSONArray("object");
 
+                        //数量小于等于1的时候，会报出转型错误的警告
+                        ja = obj.getJSONArray("object");
                         LogUtils.v("ja-评论列表" + ja.toString());
+
                         getHandler.mHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -148,47 +167,20 @@ public class company_detail_index extends Fragment {
                                         Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
                                     else {
                                         //更新帖子列表显示内容
-                                        //Toast.makeText(company_detail.this, message, Toast.LENGTH_SHORT).show();
-                                        List<Map<String,String>> aa  = new ArrayList<Map<String,String>>();
-                                            for(int i=0; i < ja.length();i++){
-                                                Map<String, String> group_map = new HashMap<String, String>();
-                                                try {
-                                                    JSONObject obj = (JSONObject) ja.get(i);
-                                                    group_map.put("username",obj.get("username").toString());
-                                                    group_map.put("comment_value",obj.get("comment").toString());
-                                                    group_map.put("comment_time",obj.get("time").toString());
-                                                } catch (JSONException e1) {
-                                                    e1.printStackTrace();
-                                                }
-                                                aa.add(group_map);
-                                            }
-
-                                        simple_adapter = new SimpleAdapter(view.getContext(), aa, R.layout.company_comment_ever, new String[] {"username","comment_value","comment_time"},
-                                                new int[] {R.id.username, R.id.comment_value, R.id.comment_time});
-
-                                        comment_list.setAdapter(simple_adapter);
-                                        comment_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                            private ImageView company_like_pic;
-                                            private TextView dz_count;
-                                            @Override
-                                            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                                                LogUtils.v("click item!!!!1");
-                                                company_like_pic = (ImageView) v.findViewById(R.id.company_like_pic);
-                                                dz_count = (TextView) v.findViewById(R.id.dz_count);
-
-
-                                                company_like_pic.setImageResource(R.drawable.like_pressed);
-                                                dz_count.setVisibility(View.VISIBLE);
-                                                dz_count.setText("1");
-                                            }
-                                        });
+                                        Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+                                        try {
+                                            ja = obj.getJSONArray("object");
+                                        }catch (org.json.JSONException e){
+                                            jo = obj.getJSONObject("object");
+                                        }
+                                        //填充评论列表
+                                        fillCommentList();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
                         });
-
                     }
                 }
             };
@@ -197,6 +189,105 @@ public class company_detail_index extends Fragment {
         }catch (NullPointerException e){
             e.printStackTrace();
         }
+
+    }
+
+    private void fillCommentList() {
+        comment_dataList = new ArrayList<HashMap<String,String>>();
+        if(ja.length() == 0){
+            noneWord.setVisibility(View.VISIBLE);//显示无内容
+        }else {//只要有内容就开始填充
+            noneWord.setVisibility(View.GONE);//隐藏空反馈提示
+            try {
+                for (int i = 0; i < ja.length(); i++) {
+                    JSONObject json = ja.getJSONObject(i);
+                    HashMap<String, String> map = new HashMap<String, String>();
+                    map.put("touxiang", json.get("headPic").toString());
+                    map.put("username", json.get("nickName").toString());
+                    map.put("comment_time", json.get("createTime").toString());
+                    map.put("comment_value", json.get("comment").toString());
+                    map.put("comment_like_pic", json.get("isAdmire").toString());//本人是否点赞
+                    map.put("dz_count", json.get("admire").toString());//点赞数
+                    comment_dataList.add(map);
+                }
+                LogUtils.v(comment_dataList.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        resumeAdapter_comcom = new ResumeAdapter_comcom(view.getContext(),getActivity(), comment_dataList, R.layout.company_comment_ever, new String[] {"username","comment_time","comment_value","dz_count"},
+                 new int[] {R.id.username, R.id.comment_time, R.id.comment_value,R.id.dz_count});
+        comment_list.setAdapter(resumeAdapter_comcom);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.comment_send:
+                sendPinlun();
+        }
+    }
+        //发送评论
+    private void sendPinlun() {
+        //获取EditText中的内容
+        LogUtils.v(comment_edit.getText().toString());
+        if(comment_edit.getText().toString()!=""){
+            map = new HashMap<String,String>();
+            map.put("token", MainActivity.token);
+            map.put("companyId",id);
+            map.put("comment",comment_edit.getText().toString());
+            String url = Constant.getUrl()+"app/user/replyCompany.htmls";
+            try{
+                HttpThread ht = new HttpThread(url,map){
+                    @Override
+                    public void getObj(final JSONObject obj) throws JSONException {
+                        if(obj!=null){
+                            final String message = obj.get("message").toString();
+                            LogUtils.v(obj.get("message").toString());
+                            LogUtils.v("obj" + obj.toString());
+
+                            getHandler.mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        if (obj.get("code").toString().equals("-1"))
+                                            Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+                                        else {
+                                            //更新
+                                            Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+                                            //评论成功
+                                            HashMap<String,String> comment_map = new HashMap<String, String>();
+
+                                            comment_map.put("touxiang", MainActivity.headpic);
+                                            comment_map.put("username", MainActivity.nickname);
+                                            comment_map.put("comment_time", Constant.getCurrentTime());
+                                            comment_map.put("comment_value", map.get("comment").toString());
+                                            comment_map.put("comment_like_pic", "0");//本人是否点赞
+                                            comment_map.put("dz_count", "0");//点赞数
+
+                                            comment_dataList.add(comment_map);
+                                            resumeAdapter_comcom.notifyDataSetChanged();
+                                            //发完了之后清空内容
+                                            comment_edit.setText("");
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                };
+                ht.start();
+
+            }catch (NullPointerException e){
+                e.printStackTrace();
+            }
+
+
+        }
+        //发送完毕之后清空EditText
 
     }
     //初始化数据
@@ -213,5 +304,8 @@ public class company_detail_index extends Fragment {
             super.dismiss();
         }
     }
+    //发布评论之后动态刷新列表
+
+
 
 }
