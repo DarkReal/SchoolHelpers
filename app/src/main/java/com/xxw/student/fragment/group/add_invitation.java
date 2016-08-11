@@ -3,6 +3,7 @@ package com.xxw.student.fragment.group;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
@@ -14,11 +15,16 @@ import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -37,6 +43,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * 发布帖子
@@ -44,33 +51,101 @@ import java.util.HashMap;
  */
 public class add_invitation extends Activity {
     private contentFragment_quanzi fquanzi ;
-    private ImageView wen_send ;
+    private Button wen_send ;
     private EditText wen_title,wen_content;
     private ImageView pic;
     private TextView close_this;
     private LayoutInflater inflater;
-    private int width,height;
     private HashMap<String,String> map;
+    private LinearLayout select_group;
+    private LayoutInflater mInflater;
+    private List<String> lists;//帖子分类
+    private TextView all_group;
+    //自定义适配器
+    private MyAdapter mAdapter;
+    //PopupWindow
+    private my_pop pop;
+    //是否显示PopupWindow，默认不显示
+    private boolean isPopShow = false;
+    private View view;
+    private int width,height;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_invitation);
 
+        //获取屏幕的宽度和高度
+        inflater = getLayoutInflater();
+        //根视图
+        final View rootview = inflater.inflate(R.layout.add_invitation, null);
+        DisplayMetrics metric = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metric);
+        width = metric.widthPixels;     // 屏幕宽度（像素）
+        height = metric.heightPixels;
+
+        mAdapter = new MyAdapter();
+
+        Constant.setGroup_type();
+        lists = Constant.getGroup_type();
+        all_group = (TextView) findViewById(R.id.all_group);
 
         FragmentManager fm = this.getFragmentManager();
         final FragmentTransaction ft = fm.beginTransaction();
-//        fquanzi = (contentFragment_quanzi)fm.findFragmentById(R.id.main_content);
-//        FragmentTransaction ft = fm.beginTransaction();
+
         wen_title = (EditText)findViewById(R.id.wen_title);
         wen_content = (EditText)findViewById(R.id.wen_content);
-        wen_send = (ImageView)findViewById(R.id.wen_send);
-//        fquanzi.initData();
+        wen_send = (Button)findViewById(R.id.wen_send);
 
+        select_group=(LinearLayout)findViewById(R.id.select_group);
+        //弹出选择分类
+        select_group.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                LogUtils.v("click!!");
+                // TODO Auto-generated method stub
+                if(pop == null){//popupwindow展示出来的时候
+                    //初始化透明度
+                    LogUtils.v("popcreate");
+                    //初始化popupwindow
+                    ListView listView = new ListView(add_invitation.this);
+                    listView.setCacheColorHint(0xFFFFFFFF);
+                    listView.setAdapter(mAdapter);
+                    pop = new my_pop(listView, select_group.getWidth()+70, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                    pop.setBackgroundDrawable(new ColorDrawable(0xFFFFFFFF));
+                    pop.setFocusable(true);
+                    isPopShow = true;
+
+                }
+                if(isPopShow){
+                    //展示出来的时候，再点击，那么
+                    LogUtils.v("pop出来啦");
+                    //进行高度的测量
+                    pop.showUp(select_group);
+                    isPopShow = false;
+                    //点其他地方pop消失
+                    rootview.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View view, MotionEvent motionEvent) {
+                            if (pop.isShowing())
+                            {
+                                LogUtils.v("-------------------onTouch------------");
+                                pop.dismiss();
+                            }
+                            return false;
+                        }
+                    });
+                }
+            }
+        });
+
+        mInflater = LayoutInflater.from(add_invitation.this);
         wen_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                /*List<Map<String,String>> list = a.getWdSet();*/
                 LogUtils.v("wen_send click!");
                 map = new HashMap<String,String>();
                 SharedPreferences preferences = getSharedPreferences("userInfo",
@@ -81,15 +156,13 @@ public class add_invitation extends Activity {
                 if(!check()) {
                     Toast.makeText(add_invitation.this, "请检查内容是否填写完毕", Toast.LENGTH_SHORT);
                 }else{
-                    map.put("username", username);//用户名
-                    map.put("tiezi_title", wen_title.getText().toString());
-                    map.put("content", wen_content.getText().toString());
-                    map.put("tiezi_fenlei", "默认分类");
-                    map.put("likecount","0");
-                    map.put("comment","0");
+                    map.put("token", MainActivity.token);//用户名
+                    map.put("title", wen_title.getText().toString());
+                    map.put("context", wen_content.getText().toString());
+                    map.put("circleType", Constant.getCurrentGroup(all_group.getText().toString())+"");
 
                     LogUtils.v("tiezi"+map.values().toString());
-                    String url= Constant.getUrl()+"tiezi/add_invitation.htmls";
+                    String url= Constant.getUrl()+"app/circle/createTips.htmls";
                     try{
 
                         HttpThread ht = new HttpThread(url,map){
@@ -110,8 +183,8 @@ public class add_invitation extends Activity {
                                                         public void run() {
                                                             Intent intent = new Intent();
                                                             intent.setClass(add_invitation.this, MainActivity.class);
+                                                            intent.putExtra("page","1");
                                                             startActivity(intent);
-
                                                         }
 
                                                     }, 1500);
@@ -130,26 +203,14 @@ public class add_invitation extends Activity {
                         e.printStackTrace();
                     }
                 }
-                /*list.add(map);*/
-                /*a.setWdSet(list);*/
-                //放到对应的帖子对象里面去
-                //finish();
-
             }
         });
-
-
-        inflater = getLayoutInflater();
-        DisplayMetrics metric = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metric);
-        width = metric.widthPixels;     // 屏幕宽度（像素）
-        height = metric.heightPixels;
         close_this = (TextView) this.findViewById(R.id.close_this);
         pic = (ImageView) this.findViewById(R.id.pic);
         close_this.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //finish();
+                //取消事件
             }
         });
         pic.setOnClickListener(new View.OnClickListener() {
@@ -193,7 +254,7 @@ public class add_invitation extends Activity {
                     }
                 });
                 pop = new mypop(contentView, 500, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-                View rootview = inflater.inflate(R.layout.add_invitation, null);
+
 
                 //view.invalidate();
                 pop.setBackgroundDrawable(new ColorDrawable(00000000));
@@ -206,6 +267,7 @@ public class add_invitation extends Activity {
         });
 
     }
+    //选择图片
     public class mypop extends PopupWindow {
         WindowManager.LayoutParams lp = getWindow().getAttributes();
 
@@ -220,6 +282,78 @@ public class add_invitation extends Activity {
             lp.alpha = 1f;
             getWindow().setAttributes(lp);
         }
+    }
+
+    //弹出分类
+    private class my_pop extends PopupWindow {
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+
+        public my_pop(ListView listView, int i, int wrapContent, boolean b) {
+            super(listView,i,wrapContent,b);
+        }
+        public my_pop(View contentView, int width, int height, boolean focusable) {
+            super(contentView,width,height,focusable);
+        }
+
+        @Override
+        public void dismiss() {
+            super.dismiss();
+            pop = null;
+        }
+        //在其上方显示
+        public void showUp(View v) {
+            //获取需要在其上方显示的控件的位置信息
+            int[] location = new int[2];
+            v.getLocationOnScreen(location);
+            //在控件上方显示
+            showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - 40 / 2, location[1] - 220);
+        }
+    }
+    /**
+     * 自定义Adapter
+     * @author liuyazhuang
+     *
+     */
+    private class MyAdapter extends BaseAdapter {
+
+        @Override
+        public int getCount() {
+            // TODO Auto-generated method stub
+            return lists.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            // TODO Auto-generated method stub
+            return lists.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            // TODO Auto-generated method stub
+            return position;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+
+            View views = mInflater.inflate(R.layout.select_group_adapter,null);
+
+            TextView select_group_content = (TextView) views.findViewById(R.id.select_group_content);
+            select_group_content.setText(lists.get(position));
+            select_group_content.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TODO Auto-generated method stub
+                    all_group.setText(lists.get(position));
+                    pop.dismiss();
+                    isPopShow = false;
+//                    点击了之后记得调成false，下次就可以打开了
+                }
+            });
+            return views;
+        }
+
     }
 
     public boolean check(){
