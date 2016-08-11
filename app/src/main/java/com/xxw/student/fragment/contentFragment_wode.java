@@ -56,7 +56,6 @@ public class contentFragment_wode extends Fragment implements View.OnClickListen
     private View rootView;
     private TextView username;
     private int width,height;
-    private String TAG = "contentFragment_wode";
     private Context context;
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState){
         rootView = inflater.inflate(R.layout.main_content_wode, container, false);
@@ -64,6 +63,11 @@ public class contentFragment_wode extends Fragment implements View.OnClickListen
         setDefault();
         username = (TextView) rootView.findViewById(R.id.username);
         username.setText(MainActivity.phone);
+
+        if(MainActivity.topage!=""){
+            changeFragment(Integer.parseInt(MainActivity.topage));
+            MainActivity.topage="";/*用完了记得要清空*/
+        }
         return rootView;
 
     }

@@ -5,6 +5,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -16,6 +17,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.xxw.student.R;
+import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.LogUtils;
 
 import java.util.ArrayList;
@@ -49,14 +51,8 @@ public class titleFragment_quanzi extends Fragment {
         view = inflater.inflate(R.layout.main_title_quanzi,container,false);
         search_icon = (LinearLayout) view.findViewById(R.id.search_icon);
 
-        lists = new ArrayList<String>();
-        //初始化所有数据
-        lists.add("全部");
-        lists.add("每日精选");
-        lists.add("大话职场");
-        lists.add("TA记录");
-
-
+        Constant.setGroup_type();
+        lists = Constant.getGroup_type();
         all_group = (TextView) view.findViewById(R.id.all_group);
         select_group_btn = (ImageView) view.findViewById(R.id.select_group_btn);
         select_group=(LinearLayout)view.findViewById(R.id.select_group);
@@ -93,7 +89,19 @@ public class titleFragment_quanzi extends Fragment {
                     getActivity().getWindow().setAttributes(lp);
 
                     isPopShow = false;
+                    view.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View view, MotionEvent motionEvent) {
+                            if (pop.isShowing())
+                            {
+                                LogUtils.v("-------------------onTouch------------");
+                                pop.dismiss();
+                            }
+                            return false;
+                        }
+                    });
                 }
+
             }
         });
 
@@ -139,6 +147,7 @@ public class titleFragment_quanzi extends Fragment {
         @Override
         public void dismiss() {
             super.dismiss();
+            pop = null;
             lp.alpha = 1f;
             getActivity().getWindow().setAttributes(lp);
         }
@@ -181,7 +190,7 @@ public class titleFragment_quanzi extends Fragment {
                     // TODO Auto-generated method stub
                     all_group.setText(lists.get(position));
                     pop.dismiss();
-                    isPopShow = true;
+                    isPopShow = false;
                     LogUtils.v("pop消失了!!!!!!");
 
                 }
