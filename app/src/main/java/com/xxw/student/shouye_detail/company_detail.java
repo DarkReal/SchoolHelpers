@@ -164,9 +164,7 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
                 }
                 break;
             case R.id.return_before :
-                Intent intent = new Intent();
-                intent.setClass(this, MainActivity.class);
-                startActivity(intent);
+                finish();
                 overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                 break;
         }
