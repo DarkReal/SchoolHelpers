@@ -3,6 +3,7 @@ package com.xxw.student.fragment;
 import android.app.Fragment;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Message;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -17,6 +18,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.xxw.student.R;
+import com.xxw.student.utils.Commonhandler;
 import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.LogUtils;
 
@@ -189,6 +191,11 @@ public class titleFragment_quanzi extends Fragment {
                 public void onClick(View v) {
                     // TODO Auto-generated method stub
                     all_group.setText(lists.get(position));
+
+                    Message msg = new Message();
+                    msg.what = position;
+                    Commonhandler.comHandler.sendMessageDelayed(msg, 10);
+
                     pop.dismiss();
                     isPopShow = false;
                     LogUtils.v("pop消失了!!!!!!");

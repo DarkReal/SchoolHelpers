@@ -3,6 +3,8 @@ package com.xxw.student.fragment;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +15,11 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.xxw.student.Adapter.ResumeAdapter_group;
 import com.xxw.student.R;
 import com.xxw.student.fragment.group.add_invitation;
 import com.xxw.student.fragment.group.group_detail;
+import com.xxw.student.utils.Commonhandler;
 import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
@@ -40,14 +44,14 @@ import java.util.Map;
  */
 public class contentFragment_quanzi extends Fragment implements pullrefresh_view.OnHeaderRefreshListener{
     private View rootview;
-    private SimpleAdapter simple_adapter;
+    private ResumeAdapter_group resumeAdapter_group;
     private ListView group_list_ever;
 
     private FloatingActionButton fab;
     private pullrefresh_view mPullToRefreshView;
-    private List<Map<String,String>> aa;
+    private List<HashMap<String,String>> group_datalist;
     private JSONArray ja;
-
+    public static String index;//默认分类是零
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState){
         rootview = inflater.inflate(R.layout.main_content_quanzi,container,false);
 
@@ -57,14 +61,27 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
         mPullToRefreshView.setOnHeaderRefreshListener(this);
 
         initData();
-        getData();//获取帖子初始数据
+        getData("0");//获取帖子初始数据
+
+        Commonhandler.comHandler = new Handler(){
+            public void handleMessage (Message msg) {
+                getData(msg.what+"");
+                resumeAdapter_group.notifyDataSetChanged();//刷新显示
+            }
+        };
+
         return rootview;
     }
 
-    private void getData() {
-        String url= Constant.getUrl()+"tiezi/getTiezi.htmls";
+    private void getData(String index) {
+
+        HashMap<String,String> map = new HashMap<String,String>();
+        map.put("index",index);
+        map.put("pageNow","1");
+
+        String url= Constant.getUrl()+"app/circle/loadCircleList.htmls";
         try{
-            HttpThread ht = new HttpThread(url){
+            HttpThread ht = new HttpThread(url,map){
                 @Override
                 public void getObj(final JSONObject obj) throws JSONException {
                     if(obj!=null){
@@ -72,16 +89,17 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
 
                         try {
                             message = obj.get("message").toString();
-                            ja = obj.getJSONArray("object");
-                            //LogUtils.v(ja.toString());
+                            LogUtils.v(obj.get("code").toString());
                             getHandler.mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     try {
-                                        if (obj.get("code").toString().equals("-1"))
+                                        if (!obj.get("code").toString().equals("10000"))
                                             Toast.makeText(rootview.getContext(), message, Toast.LENGTH_SHORT).show();
                                         else {
+                                            Toast.makeText(rootview.getContext(), message, Toast.LENGTH_SHORT).show();
                                             //更新帖子列表显示内容
+                                            ja = obj.getJSONArray("object");
                                             updateview();
                                         }
                                     } catch (JSONException e) {
@@ -101,31 +119,32 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
             e.printStackTrace();
         }
     }
-
+    //更新显示
     private void updateview(){
-        aa = new ArrayList<Map<String, String>>();
+        LogUtils.v("updateView");
+        group_datalist = new ArrayList<HashMap<String, String>>();
 
         for(int i=0;i<ja.length();i++){
-            JSONObject obj = null;
+
             try {
-                obj = (JSONObject) ja.get(i);
-                Map<String,String> map = new HashMap<String,String>();
-                map.put("group_list_name",obj.get("username").toString());
-                map.put("group_list_title",obj.get("tiezi_title").toString());
-                map.put("group_list_content",obj.get("content").toString());
-                map.put("group_list_like",obj.get("likecount").toString());
-                map.put("group_list_comment", obj.get("comment").toString());
-                map.put("group_list_id",obj.get("id").toString());
-                aa.add(map);
+                JSONObject obj = (JSONObject) ja.get(i);
+                HashMap<String,String> group_map = new HashMap<String,String>();
+                group_map.put("text_id",obj.get("id").toString());
+                group_map.put("group_list_pic",obj.get("userHeadPic").toString());
+                group_map.put("group_list_name",obj.get("userName").toString());
+                group_map.put("group_list_title",obj.get("title").toString());
+                group_map.put("group_list_content", obj.get("context").toString());
+                group_map.put("group_list_like", obj.get("admirenum").toString());
+                group_map.put("group_list_comment", obj.get("commentnum").toString());
+                group_datalist.add(group_map);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
         }
-        //LogUtils.v(aa.toString());
-
-        simple_adapter=new SimpleAdapter(this.getActivity(), aa, R.layout.group_list_ever, new String[] {"group_list_name","group_list_title","group_list_content","group_list_like","group_list_comment","group_list_id"},
-                new int[] {R.id.group_list_name, R.id.group_list_title, R.id.group_list_content, R.id.group_list_like, R.id.group_list_comment, R.id.text_id});
-        group_list_ever.setAdapter(simple_adapter);
+        LogUtils.v(group_datalist.toString());
+        resumeAdapter_group=new ResumeAdapter_group(rootview.getContext(),getActivity(), group_datalist, R.layout.group_list_ever, new String[] {"text_id","group_list_name","group_list_title","group_list_content","group_list_like","group_list_comment"},
+                new int[] {R.id.text_id, R.id.group_list_name, R.id.group_list_title, R.id.group_list_content,R.id.group_list_like,R.id.group_list_comment});
+        group_list_ever.setAdapter(resumeAdapter_group);
         group_list_ever.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
