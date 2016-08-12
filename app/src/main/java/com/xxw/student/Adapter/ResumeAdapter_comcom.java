@@ -116,8 +116,8 @@ public class ResumeAdapter_comcom extends BaseAdapter {
         }
         bitmapUtils.display(holder.touxiang, Constant.getUrl() + "upload/media/images/" + list.get(position).get("touxiang"));
 
-        if(list.get(position).get("comment_like_pic").toString()=="1"){
-//
+        LogUtils.v(position+"----"+holder.ispressed.toString());
+        if(holder.ispressed.toString().equals("1")){
             holder.company_like_pic.setImageResource(R.drawable.like_pressed);
         }else{
             holder.company_like_pic.setImageResource(R.drawable.like_unclick);
