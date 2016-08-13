@@ -47,6 +47,7 @@ public class hjjl_frag extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wode_hjjl_edit);
+
         Commonhandler.comHandler = new Handler(){
             public void handleMessage (Message msg) {
                 LogUtils.v("in hanlder");
@@ -119,6 +120,7 @@ public class hjjl_frag extends Activity implements View.OnClickListener{
             resumeAdapterHjjl = new ResumeAdapter_hjjl(this, hjjl_frag.this, hjjl_datalist, R.layout.wode_hjjl_edit_ever, new String[]{"id","rewardedRank", "rewardedTime", "rewardedName"},
                     new int[]{R.id.hjjl_list_id, R.id.prize_degree, R.id.prize_gettime, R.id.prizeName});
             hjjl_list.setAdapter(resumeAdapterHjjl);
+            resumeAdapterHjjl.changeState(false);
         }
     }
 
@@ -130,7 +132,7 @@ public class hjjl_frag extends Activity implements View.OnClickListener{
                 //返回到简历的总页面，
                 finish();
                 overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-                resumeAdapterHjjl.changeState(false);
+
                 break;
             case R.id.add_reward:
                 addhjjl();

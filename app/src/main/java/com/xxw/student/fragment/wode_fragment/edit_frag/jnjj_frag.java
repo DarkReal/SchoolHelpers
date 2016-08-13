@@ -47,6 +47,7 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wode_jnjj_edit);
+
         Constant.setSkill_list();//初始化
         Commonhandler.comHandler = new Handler(){
             public void handleMessage (Message msg) {
@@ -118,6 +119,7 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
             resumeAdapterJnjj=new ResumeAdapter_jnjj(this,jnjj_frag.this, jnjj_datalist, R.layout.wode_jnjj_edit_ever, new String[] {"id","skillLevel","skillName"},
                     new int[] {R.id.jnjj_list_id, R.id.skilldegress, R.id.jnjj_skill});
             jnjj_list.setAdapter(resumeAdapterJnjj);
+            resumeAdapterJnjj.changeState(false);
         }
     }
 
@@ -129,7 +131,7 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
                 //返回到简历的总页面，
                 finish();
                 overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-                resumeAdapterJnjj.changeState(false);
+
                 break;
             case R.id.add_skill:
                 addjnjj();

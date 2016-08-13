@@ -48,6 +48,7 @@ public class jybj_frag extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wode_jiaoyubeijing_edit);
+
 //        根据收到的不同的消息,对应改变edit_btn的点击事件
         Commonhandler.comHandler = new Handler(){
             public void handleMessage (Message msg) {
@@ -121,6 +122,7 @@ public class jybj_frag extends Activity implements View.OnClickListener{
             resumeAdapterJybj =new ResumeAdapter_jybj(this,jybj_frag.this, jybj_datalist, R.layout.wode_jiaoyubeijing_edit_ever, new String[] {"id","school","majorIn","education","timeBegin","timeEnd"},
                 new int[] {R.id.jybj_list_id, R.id.school, R.id.majorIn, R.id.education, R.id.timeBegin, R.id.timeEnd});
             jybj_list.setAdapter(resumeAdapterJybj);
+            resumeAdapterJybj.changeState(false);
         }
     }
 
@@ -132,7 +134,7 @@ public class jybj_frag extends Activity implements View.OnClickListener{
                 //返回到简历的总页面，
                 finish();
                 overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-                resumeAdapterJybj.changeState(false);
+
                 break;
             case R.id.add_jybj:
 

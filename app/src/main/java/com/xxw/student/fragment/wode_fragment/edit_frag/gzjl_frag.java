@@ -47,6 +47,7 @@ public class gzjl_frag extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wode_gzjl_edit);
+
         //        根据收到的不同的消息,对应改变edit_btn的点击事件
         Commonhandler.comHandler = new Handler(){
             public void handleMessage (Message msg) {
@@ -122,6 +123,7 @@ public class gzjl_frag extends Activity implements View.OnClickListener{
             resumeAdapterGzjl=new ResumeAdapter_gzjl(this,gzjl_frag.this, gzjl_datalist, R.layout.wode_gzjl_edit_ever, new String[] {"workContext","position","companyName","workDateBegin","workDateEnd","id"},
                     new int[] {R.id.job_experience, R.id.job, R.id.company, R.id.gz_timeBegin, R.id.gz_timeEnd, R.id.gzjl_list_id,});
             gzjl_list.setAdapter(resumeAdapterGzjl);
+            resumeAdapterGzjl.changeState(false);
         }
     }
 
@@ -133,7 +135,7 @@ public class gzjl_frag extends Activity implements View.OnClickListener{
                 //返回到简历的总页面，
                 finish();
                 overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-                resumeAdapterGzjl.changeState(false);
+
                 break;
             case R.id.add_job_experience:
                 addgzjl();
