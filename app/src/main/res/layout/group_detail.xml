@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/white"
-    android:layout_alignParentTop="true">
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:layout_alignParentTop="true">
 
     <!--<include layout="@layout/detail_title"
              android:layout_width="match_parent"
@@ -117,11 +118,10 @@
                         android:layout_width="20dip"
                         android:layout_height="match_parent"
                         android:src="@drawable/like_unclick"
-                        android:id="@+id/company_like_pic"
+                        android:id="@+id/group_like_pic"
                         android:clickable="true"
                         android:layout_gravity="center_vertical"
                         android:layout_toLeftOf="@+id/like_count"
-
                         />
                     <TextView
                         android:layout_width="wrap_content"

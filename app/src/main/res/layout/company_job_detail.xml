@@ -173,6 +173,7 @@
                 android:text="每月不少于120小时"
                 android:textColor="@color/black"
                 android:layout_marginLeft="10dip"
+                android:id="@+id/job_workrest"
                 />
         </LinearLayout>
         <LinearLayout
@@ -193,6 +194,7 @@
                 android:text="工作日9:00-17:00"
                 android:textColor="@color/black"
                 android:layout_marginLeft="10dip"
+                android:id="@+id/job_workdate"
                 />
         </LinearLayout>
         <LinearLayout
@@ -213,6 +215,7 @@
                 android:text="每天全勤可以享受免费午餐"
                 android:textColor="@color/black"
                 android:layout_marginLeft="10dip"
+                android:id="@+id/job_workhappy"
                 />
         </LinearLayout>
         <LinearLayout
@@ -233,6 +236,7 @@
                 android:text="10名（剩余3名）"
                 android:textColor="@color/black"
                 android:layout_marginLeft="10dip"
+                android:id="@+id/job_plannum"
                 />
         </LinearLayout>
         <LinearLayout
@@ -254,7 +258,7 @@
                 android:text="2016-04-17  23:59:59"
                 android:textColor="@color/black"
                 android:layout_marginLeft="10dip"
-                />
+                android:id="@+id/job_todate"/>
         </LinearLayout>
 
     </LinearLayout>
@@ -274,57 +278,38 @@
             android:layout_marginLeft="20dip"
             android:layout_marginTop="20dip"
             android:layout_marginBottom="5dip"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="【岗位描述】"
-            android:textColor="@color/normal_green"
-            android:layout_marginLeft="15dip"
-            />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="1. 拍摄视频，必要时跟组外出拍摄"
-            android:textColor="@color/black"
-            android:layout_marginLeft="20dip"
-            android:layout_marginTop="10dip"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="2.进行视频后期剪辑"
-            android:textColor="@color/black"
-            android:layout_marginLeft="20dip"
-            android:layout_marginTop="10dip"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="【任职资格】"
-            android:textColor="@color/normal_green"
-            android:layout_marginLeft="15dip"
-            android:layout_marginTop="10dip"
-            />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="1. 会熟练使用视频制作软件"
-            android:textColor="@color/black"
-            android:layout_marginLeft="20dip"
-            android:layout_marginTop="10dip"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="2.不怕吃苦"
-            android:textColor="@color/black"
-            android:layout_marginLeft="20dip"
-            android:layout_marginTop="10dip"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="3.勤劳热情"
-            android:textColor="@color/black"
-            android:layout_marginLeft="20dip"
-            android:layout_marginTop="10dip"
-            android:layout_marginBottom="10dip"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="【岗位描述】"
+                android:textColor="@color/normal_green"
+                android:layout_marginLeft="15dip"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1. 拍摄视频，必要时跟组外出拍摄"
+                android:textColor="@color/black"
+                android:layout_marginLeft="20dip"
+                android:layout_marginTop="10dip"
+                android:id="@+id/positionDesc"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="【任职资格】"
+                android:textColor="@color/normal_green"
+                android:layout_marginLeft="15dip"
+                android:layout_marginTop="10dip"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1. 会熟练使用视频制作软件"
+                android:textColor="@color/black"
+                android:layout_marginLeft="20dip"
+                android:layout_marginTop="10dip"
+                android:id="@+id/workRequired"/>
 
         </LinearLayout>
 

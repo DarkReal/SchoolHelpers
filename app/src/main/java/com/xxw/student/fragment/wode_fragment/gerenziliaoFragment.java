@@ -1,11 +1,13 @@
 package com.xxw.student.fragment.wode_fragment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.GestureDetector;
@@ -15,8 +17,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.xxw.student.LoginActivity;
 import com.xxw.student.MainActivity;
 import com.xxw.student.R;
 import com.xxw.student.utils.Constant;
@@ -25,6 +29,7 @@ import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
 import com.xxw.student.view.framework.picker.DatePicker;
 import com.xxw.student.view.framework.picker.OptionPicker;
+import com.xxw.student.view.sweetdialog.SweetAlertDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -103,10 +108,15 @@ public class gerenziliaoFragment extends BaseFragment implements View.OnClickLis
         education.setOnClickListener(this);
         back = (ImageView)rootView.findViewById(R.id.backTowode_gerenziliao);
         back.setOnClickListener(this);
+        city.setOnClickListener(this);
         root_gerenziliao = (RelativeLayout)rootView.findViewById(R.id.root_gerenziliao);
         root_gerenziliao.setOnTouchListener(this);
         root_gerenziliao.setLongClickable(true);
 
+        univercity.setOnClickListener(this);
+        majorIn.setOnClickListener(this);
+        phone.setOnClickListener(this);
+        email.setOnClickListener(this);
 
         mGestureDetector = new GestureDetector((GestureDetector.OnGestureListener) this);
         super.setmGestureDetector(mGestureDetector);
@@ -167,6 +177,17 @@ public class gerenziliaoFragment extends BaseFragment implements View.OnClickLis
 
         map.put("token", MainActivity.token);
         map.put("phone", MainActivity.phone);
+
+        LayoutInflater inflater = LayoutInflater.from(rootView.getContext());
+        View viewinflator = inflater.inflate(R.layout.custom_alertdialog_edit, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(rootView.getContext());
+        final AlertDialog alertDialog = builder.create();
+        TextView tv = (TextView) viewinflator.findViewById(R.id.dialog_title);
+        final EditText et = (EditText) viewinflator.findViewById(R.id.content);
+        TextView submit = (TextView) viewinflator.findViewById(R.id.dialog_submit);
+        TextView cancel = (TextView) viewinflator.findViewById(R.id.dialog_cancel);
+
+
         switch (v.getId()) {
             //修改性别
             case R.id.sex:
@@ -234,6 +255,141 @@ public class gerenziliaoFragment extends BaseFragment implements View.OnClickLis
                 ft.replace(R.id.fillContent, new Fragment());
                 ft.commit();
                 break;
+            case R.id.location:
+
+                alertDialog.show();
+
+
+                et.setText(city.getText().toString());
+
+                //提交内容,更改对应的文本框
+                submit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        city.setText(et.getText().toString());
+                        alertDialog.cancel();
+                        map.put("index","2");
+                        map.put("city",city.getText().toString());
+                        update();
+                    }
+                });
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertDialog.cancel();
+                    }
+                });
+
+                tv.setText("城市名称");
+                alertDialog.getWindow().setContentView(viewinflator);
+                alertDialog.getWindow().setLayout(400, 220);
+                break;
+
+            case R.id.byxx:
+                alertDialog.show();
+                et.setText(univercity.getText().toString());
+
+                //提交内容,更改对应的文本框
+                submit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        univercity.setText(et.getText().toString());
+                        alertDialog.cancel();
+                        map.put("index","4");
+                        map.put("university",univercity.getText().toString());
+                        update();
+                    }
+                });
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertDialog.cancel();
+                    }
+                });
+
+                tv.setText("毕业院校");
+                alertDialog.getWindow().setContentView(viewinflator);
+                alertDialog.getWindow().setLayout(400, 220);
+                break;
+            case R.id.major:
+                alertDialog.show();
+                et.setText(majorIn.getText().toString());
+
+                //提交内容,更改对应的文本框
+                submit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        majorIn.setText(et.getText().toString());
+                        alertDialog.cancel();
+                        map.put("index","5");
+                        map.put("majorIn",majorIn.getText().toString());
+                        update();
+                    }
+                });
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertDialog.cancel();
+                    }
+                });
+
+                tv.setText("专业名称");
+                alertDialog.getWindow().setContentView(viewinflator);
+                alertDialog.getWindow().setLayout(400, 220);
+                break;
+//            case R.id.telnumber:
+//                alertDialog.show();
+//                et.setText(phone.getText().toString());
+//
+//                //提交内容,更改对应的文本框
+//                submit.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        phone.setText(et.getText().toString());
+//                        alertDialog.cancel();
+//                        map.put("index","4");
+//                        map.put("city",phone.getText().toString());
+//                        update();
+//                    }
+//                });
+//                cancel.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        alertDialog.cancel();
+//                    }
+//                });
+//
+//                tv.setText("电话号码");
+//                alertDialog.getWindow().setContentView(viewinflator);
+//                alertDialog.getWindow().setLayout(400, 220);
+//                break;
+            case R.id.email:
+                alertDialog.show();
+                et.setText(email.getText().toString());
+
+                //提交内容,更改对应的文本框
+                submit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        email.setText(et.getText().toString());
+                        alertDialog.cancel();
+                        map.put("index", "6");
+                        map.put("email",email.getText().toString());
+                        update();
+                    }
+                });
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertDialog.cancel();
+                    }
+                });
+
+                tv.setText("邮箱");
+                alertDialog.getWindow().setContentView(viewinflator);
+                alertDialog.getWindow().setLayout(400, 220);
+                break;
+
         }
 
     }
@@ -254,9 +410,17 @@ public class gerenziliaoFragment extends BaseFragment implements View.OnClickLis
                             @Override
                             public void run() {
                                 try {
-                                    if (!obj.get("code").toString().equals("10000"))
-                                        Toast.makeText(rootView.getContext(), message, Toast.LENGTH_SHORT).show();
-                                    else {
+                                    if (!obj.get("code").toString().equals("10000")){
+                                        switch (obj.get("code").toString()){
+                                            case "10006":
+                                                Toast.makeText(rootView.getContext(), message, Toast.LENGTH_SHORT).show();
+                                                new SweetAlertDialog(rootView.getContext(), SweetAlertDialog.ERROR_TYPE)
+                                                        .setTitleText("警告")
+                                                        .setContentText("性别不能二次修改!")
+                                                        .show();
+                                                break;
+                                        }
+                                    }else {
                                         Toast.makeText(rootView.getContext(), message, Toast.LENGTH_SHORT).show();
 
                                         switch (map.get("index").toString()) {
@@ -269,11 +433,27 @@ public class gerenziliaoFragment extends BaseFragment implements View.OnClickLis
                                                 birth.setText(brith);
                                                 editor.putString("birth", brith);
                                                 break;
-                                            case "3":
-                                                education.setText(edu_pos);
-                                                editor.putString("education",edu_pos);
+
+                                            case "2":
+                                                editor.putString("city",city.getText().toString());
                                                 break;
 
+                                            case "3":
+                                                education.setText(edu_pos);
+                                                editor.putString("education", edu_pos);
+                                                break;
+
+                                            case "4":
+                                                editor.putString("university",univercity.getText().toString());
+                                                break;
+
+                                            case "5":
+                                                editor.putString("majorIn",majorIn.getText().toString());
+                                                break;
+
+                                            case "6":
+                                                editor.putString("email",email.getText().toString());
+                                                break;
                                         }
                                         editor.commit();
                                     }

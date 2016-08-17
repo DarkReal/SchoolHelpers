@@ -134,9 +134,6 @@ public class company_detail_index extends Fragment implements View.OnClickListen
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
-
     }
 
     private void getPinlunlist() {
@@ -145,6 +142,8 @@ public class company_detail_index extends Fragment implements View.OnClickListen
 
         map.put("companyId", id);
         map.put("pageNow", "0");
+        map.put("token", MainActivity.token);
+
 
         try{
             HttpThread ht = new HttpThread(url,map){

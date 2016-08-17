@@ -107,7 +107,8 @@
         <ListView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/company_index_comment">
+            android:id="@+id/company_index_comment"
+            android:layout_marginBottom="45dp">
         </ListView>
         <TextView
             android:layout_width="match_parent"

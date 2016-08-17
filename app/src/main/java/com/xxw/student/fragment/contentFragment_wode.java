@@ -25,6 +25,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lidroid.xutils.BitmapUtils;
 import com.xxw.student.LoginActivity;
 import com.xxw.student.MainActivity;
 import com.xxw.student.R;
@@ -57,14 +58,17 @@ public class contentFragment_wode extends Fragment implements View.OnClickListen
     private TextView username;
     private int width,height;
     private Context context;
+    private BitmapUtils bitmapUtils;
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState){
         rootView = inflater.inflate(R.layout.main_content_wode, container, false);
         context = rootView.getContext();
+        bitmapUtils = new BitmapUtils(context);
+
         setDefault();
         username = (TextView) rootView.findViewById(R.id.username);
         username.setText(MainActivity.phone);
 
-        if(MainActivity.topage!=""){
+        if((MainActivity.topage!="")&&(MainActivity.topage!=null)){
             changeFragment(Integer.parseInt(MainActivity.topage));
             MainActivity.topage="";/*用完了记得要清空*/
         }
@@ -91,6 +95,8 @@ public class contentFragment_wode extends Fragment implements View.OnClickListen
         profile_image = (CircleTextImageView) rootView.findViewById(R.id.profile_image);
         logout = (LinearLayout) rootView.findViewById(R.id.logout);
 
+        //加载头像
+        bitmapUtils.display(profile_image,Constant.getUrl() + "upload/media/images/" + MainActivity.headpic);
 
         gerenziliao.setOnClickListener(this);
         gerenxinxi.setOnClickListener(this);

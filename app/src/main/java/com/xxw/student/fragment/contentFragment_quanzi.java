@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -52,6 +53,7 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
     private List<HashMap<String,String>> group_datalist;
     private JSONArray ja;
     public static String index;//默认分类是零
+    private ImageView hot_circle;
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState){
         rootview = inflater.inflate(R.layout.main_content_quanzi,container,false);
 
@@ -59,6 +61,7 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
 
         mPullToRefreshView = (pullrefresh_view) rootview.findViewById(R.id.quanzi_index);
         mPullToRefreshView.setOnHeaderRefreshListener(this);
+        hot_circle = (ImageView) rootview.findViewById(R.id.hot_circle);
 
         initData();
         getData("0");//获取帖子初始数据
@@ -76,8 +79,8 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
     private void getData(String index) {
 
         HashMap<String,String> map = new HashMap<String,String>();
-        map.put("index",index);
-        map.put("pageNow","1");
+        map.put("index", index);
+        map.put("pageNow", "1");
 
         String url= Constant.getUrl()+"app/circle/loadCircleList.htmls";
         try{
@@ -121,7 +124,6 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
     }
     //更新显示
     private void updateview(){
-        LogUtils.v("updateView");
         group_datalist = new ArrayList<HashMap<String, String>>();
 
         for(int i=0;i<ja.length();i++){
@@ -150,7 +152,7 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent();
                 intent.setClass(rootview.getContext(), group_detail.class);
-                Bundle bundle=new Bundle();
+                Bundle bundle = new Bundle();
                 //获得单击部分的隐藏起来的text_id的text的值
                 TextView tv = (TextView) view.findViewById(R.id.text_id);
                 String ids = tv.getText().toString();
@@ -175,6 +177,12 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
                 startActivity(intent);
             }
         });
+        //获取热点图片
+        getHotCircle();
+
+    }
+
+    private void getHotCircle() {
 
     }
 
@@ -192,4 +200,6 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
             }
         }, 1000);
     }
+
+
 }

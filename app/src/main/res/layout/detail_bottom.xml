@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
+              android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="45dip"
-              android:background="@color/usual_gray"
+              android:background="@color/white">
+    <View
+        style="@style/xiahuaxian"/>
+    <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="horizontal"
               android:gravity="center_vertical">
-    <ImageView
+    <!--<ImageView
         android:layout_width="20dp"
         android:layout_height="match_parent"
         android:src="@drawable/liaotian_tupian"
@@ -17,11 +23,11 @@
         android:layout_width="25dp"
         android:layout_height="match_parent"
         android:src="@drawable/liaotian_biaoqing"
-        android:scaleType="centerInside"/>
+        android:scaleType="centerInside"/>-->
 
     <EditText
-        android:id="@+id/search_edit"
-        android:layout_width="wrap_content"
+        android:id="@+id/comment_edit"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_margin="10.0dip"
@@ -30,23 +36,23 @@
         android:paddingBottom="5.0dip"
         android:gravity="center_vertical"
         android:paddingLeft="10.0dip"
-        android:paddingRight="30.0dip"
         android:paddingTop="5.0dip"
         android:textColor="#ff000000"
         android:singleLine="true"
         android:textSize="15.0sp"
-        android:layout_weight="15" />
+        android:layout_weight="4" />
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="25dip"
+        android:layout_width="match_parent"
+
+        android:layout_height="match_parent"
+        android:layout_margin="5dp"
         android:background="@color/normal_green"
-        android:layout_marginLeft="5dip"
-        android:layout_marginRight="10dip"
         android:gravity="center_vertical|center_horizontal"
         android:text="发送"
-        android:textSize="15sp"
+        android:textSize="18sp"
         android:textColor="@color/white"
-        android:layout_weight="2"
-        android:id="@+id/pinglun_send"/>
+        android:layout_weight="15"
+        android:id="@+id/comment_send"/>
 
+</LinearLayout>
 </LinearLayout>

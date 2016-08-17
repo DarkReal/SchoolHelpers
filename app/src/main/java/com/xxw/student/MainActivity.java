@@ -21,6 +21,7 @@ import com.xxw.student.fragment.titleFragment_quanzi;
 import com.xxw.student.fragment.titleFragment_shouye;
 import com.xxw.student.fragment.titleFragment_wode;
 import com.xxw.student.fragment.titleFragment_xiaozhitiao;
+import com.xxw.student.utils.LogUtils;
 
 /**
  * 主Activity展示
@@ -35,11 +36,30 @@ public class MainActivity extends Activity implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         getWodeInfo();//获取
         setDefault();
         setBarEvent();
         setContentFragment();
 
+        //页面跳转
+        Intent tointent = getIntent();
+        String page = tointent.getStringExtra("page");
+
+
+        if(page!=null){
+            if(page.contains("-")){
+                String arr[] = page.split("-");
+                topage = arr[1];
+                changeFragment(Integer.parseInt(arr[0]));
+                changePage(Integer.parseInt(arr[0]));
+            }else{
+                changeFragment(Integer.parseInt(page));
+                changePage(Integer.parseInt(page));
+            }
+
+        }
     }
 
 
@@ -63,7 +83,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
     public static String token;//全局token
     public static String userid;//全局userid
     public static String city;//全局城市
-
+    public static String nickname;//昵称
+    public static String topage;//公共的跳转到哪个页面
     public void setDefault(){
         bottom_bar_image[0] = (ImageView)findViewById(R.id.bottom_bar_image_shouye);
         bottom_bar_image[1] = (ImageView)findViewById(R.id.bottom_bar_image_quanzi);
@@ -188,6 +209,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
         phone = preferences.getString("phone","");
         token = preferences.getString("token", "");
         userid = preferences.getString("id","");
+        city = preferences.getString("currcity","");
+        headpic = preferences.getString("headPic","");
+        nickname = preferences.getString("nickname","");
         Toast.makeText(this, "当前用户:" + phone, Toast.LENGTH_SHORT).show();
     }
     public static void emptyAll(){
@@ -196,5 +220,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
         MainActivity.headpic="";
         MainActivity.userid="";
         MainActivity.city="";
+        MainActivity.nickname="";
     }
 }
