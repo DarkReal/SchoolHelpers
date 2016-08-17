@@ -245,15 +245,18 @@ public class login_fragment extends Fragment {
             try {
                 editor.putString("id", userjson.getString("id"));
                 editor.putString("realname", userjson.getString("realName"));
+                editor.putString("nickname", userjson.getString("nickName"));
                 editor.putString("gender", userjson.getString("gender"));
                 editor.putString("birth", userjson.getString("birth"));
                 editor.putString("city", userjson.getString("city"));
                 editor.putString("education", userjson.getString("education"));
-                editor.putString("univercity", userjson.getString("univercity"));
+                editor.putString("university", userjson.getString("univercity"));
                 editor.putString("majorIn", userjson.getString("majorIn"));
                 editor.putString("phone", userjson.getString("phone"));
                 editor.putString("email", userjson.getString("email"));
+                editor.putString("headPic", userjson.getString("headPic"));
                 editor.putString("token", Digests.decrypt(token));
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

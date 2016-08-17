@@ -1,34 +1,45 @@
 package com.xxw.student.fragment.group;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lidroid.xutils.BitmapUtils;
+import com.xxw.student.Adapter.ResumeAdapter_comcircle;
+import com.xxw.student.LoginActivity;
 import com.xxw.student.MainActivity;
 import com.xxw.student.R;
 import com.xxw.student.utils.Constant;
+import com.xxw.student.utils.DateUtils;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.GoodView;
+import com.xxw.student.view.loading.KProgressHUD;
+import com.xxw.student.view.sweetdialog.SweetAlertDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 帖子查看详情，包含评论列
@@ -36,13 +47,12 @@ import java.util.Map;
  */
 public class group_detail extends Activity implements View.OnClickListener,GestureDetector.OnGestureListener{
 
-
     private GestureDetector gestureDetector;
     //元素
     private LinearLayout return_before;
     private SimpleAdapter simple_adapter;
     private ListView group_list;
-    private static List<Map<String, String>> dataList;
+    private static List<HashMap<String, String>> dataList;
 
     private TextView pinglun_send;
     private EditText search_edit;
@@ -51,49 +61,111 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
     private String ids;//帖子的id
     private String username = MainActivity.phone;//用户名--全局变量
     private TextView group_detail_title,user_name,write_time,text_content,like_count,comment_count;
+    private ImageView touxiang,group_like_pic;
+    private BitmapUtils bitmapUtils;
+    private EditText comment_edit;
+    private ResumeAdapter_comcircle resumeAdapter_comcircle;
+    private String isAdmire;//这个帖子是否已经点过赞了
+    private String currToid;//回复的评论的id
+    private KProgressHUD kProgressHUD;
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.group_detail);
+        bitmapUtils = new BitmapUtils(group_detail.this);
         //获得帖子id ,username
         Bundle bundle=getIntent().getExtras();
         ids=bundle.getString("id");
-//        LogUtils.v("group_detail_id"+ids);
-//        LogUtils.v("group_detail_username"+username);
-        try {
-            //initData
-            gestureDetector = new GestureDetector(this,this);
-            return_before = (LinearLayout) findViewById(R.id.return_before);
-            return_before.setOnClickListener(this);
-            search_edit = (EditText)findViewById(R.id.search_edit);
-            pinglun_send = (TextView)findViewById(R.id.pinglun_send);
-            group_detail_title = (TextView) findViewById(R.id.group_detail_title);
-            user_name = (TextView) findViewById(R.id.user_name);
-            write_time = (TextView) findViewById(R.id.write_time);
-            text_content = (TextView) findViewById(R.id.text_content);
-            like_count = (TextView) findViewById(R.id.like_count);
-            comment_count = (TextView) findViewById(R.id.comment_count);
-            getDefault();//获取帖子标题
-            getPinglunList();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        LogUtils.v("group_detail_id" + ids);
+
+
+
+        kProgressHUD = new KProgressHUD(group_detail.this);
+        kProgressHUD.setAnimationSpeed(2);
+        kProgressHUD.setDimAmount(0.5f);
+
+
+        //initData
+        gestureDetector = new GestureDetector(this,this);
+        return_before = (LinearLayout) findViewById(R.id.return_before);
+        return_before.setOnClickListener(this);
+        pinglun_send = (TextView)findViewById(R.id.comment_send);
+        group_detail_title = (TextView) findViewById(R.id.group_detail_title);
+        user_name = (TextView) findViewById(R.id.user_name);
+        write_time = (TextView) findViewById(R.id.write_time);
+        text_content = (TextView) findViewById(R.id.text_content);
+        like_count = (TextView) findViewById(R.id.like_count);
+        comment_count = (TextView) findViewById(R.id.comment_count);
+        touxiang = (ImageView) findViewById(R.id.touxiang);
+        group_like_pic = (ImageView) findViewById(R.id.group_like_pic);
+
+        group_like_pic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(isAdmire.equals("0")){
+                    //0表示未点赞
+                    group_like_pic.setImageResource(R.drawable.like_pressed);
+                    like_count.setText((Integer.parseInt(like_count.getText().toString()) + 1) + "");
+                    like_count.setVisibility(View.VISIBLE);
+                    //点赞部分
+                    GoodView goodView = new GoodView(group_detail.this);
+                    group_like_pic.setImageResource(R.drawable.like_pressed);
+                    goodView.setImage(getResources().getDrawable(R.drawable.like_pressed));
+                    goodView.show(group_like_pic);
+
+                    isAdmire ="1";
+                    likeEvent();
+                }
+                else{
+                    group_like_pic.setImageResource(R.drawable.like_unclick);
+                    String count = like_count.getText().toString();
+                    if(like_count.getText().toString()=="1"){
+                        like_count.setText((Integer.parseInt(count) - 1) + "");
+                        like_count.setVisibility(View.GONE);
+                    }else{
+                        like_count.setText((Integer.parseInt(count) - 1) + "");
+                    }
+                    isAdmire ="0";
+                    likeEvent();
+                }
+
+
+            }
+        });
+
+        comment_edit = (EditText) findViewById(R.id.comment_edit);
+
+        getDefault();//获取帖子内容
+
         pinglun_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!search_edit.getText().toString().equals("")) {
-                    //获取发帖时间
-                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+                if (!comment_edit.getText().toString().equals("")) {
                     //组合评论的map
-                    HashMap<String, String> map = new HashMap<String, String>();
-                    map.put("username", username);
-                    map.put("time", df.format(new Date()));
-                    map.put("tiezi_id", ids);
-                    map.put("comment", search_edit.getText().toString());
-                    LogUtils.v("group_detail_map"+map.values().toString());
-                    add_comment(map);//添加评论
 
-                    search_edit.setText("");
+                    HashMap<String,String> commentmap = new HashMap<String,String>();
+                    commentmap.put("token",MainActivity.token);
+                    commentmap.put("circleId",ids);
+                    //如果是艾特他人的内容
+                    if(comment_edit.getText().toString().contains("@")){
+                        commentmap.put("userTo",currToid);
+                        String[] arr =  comment_edit.getText().toString().split(": ");
+                        commentmap.put("comment",arr[1]);
+                        commentmap.put("replytype","1");
+                    }else{
+                        commentmap.put("userTo",ids);
+                        commentmap.put("comment",comment_edit.getText().toString());
+                        commentmap.put("replytype","0");
+                    }
+                    LogUtils.v("group_detail_map" + commentmap.values().toString());
+                    add_comment(commentmap);//添加评论
+
+                    comment_edit.setText("");
                     try {
                         getPinglunList();
                     } catch (JSONException e) {
@@ -103,14 +175,62 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
             }
         });
         group_list = (ListView) findViewById(R.id.comment_listview);
+
+
     }
 
-    private void getDefault() {
-        String url= Constant.getUrl()+"tiezi/getTieziContent.htmls";
-        HashMap<String,String> map1 = new HashMap<String,String>();
-        map1.put("id", ids);
+    private void likeEvent() {
+        HashMap<String,String> map = new HashMap<String, String>();
+        map.put("token", MainActivity.token);
+        map.put("circleId",ids);
+        LogUtils.v(map.toString());
+        String url = Constant.getUrl()+"app/circle/admireCircle.htmls";
         try{
-            HttpThread ht = new HttpThread(url,map1){
+            HttpThread ht = new HttpThread(url,map){
+                @Override
+                public void getObj(final JSONObject obj) throws JSONException {
+                    if(obj!=null){
+                        final String message = obj.get("message").toString();
+                        LogUtils.v(obj.get("message").toString());
+                        LogUtils.v("obj" + obj.toString());
+
+                        getHandler.mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if (!obj.get("code").toString().equals("10000"))
+                                        Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
+                                    else {
+                                        //更新帖子列表显示内容
+                                        Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
+                }
+            };
+            ht.start();
+
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    //初始加载
+    private void getDefault() {
+        //用户是否有效
+        Constant.isActivity();
+        String url= Constant.getUrl()+"app/circle/loadCircleInfo.htmls";
+        HashMap<String,String> map = new HashMap<String,String>();
+        map.put("circleId", ids);
+        map.put("token",MainActivity.token);
+
+        try{
+            HttpThread ht = new HttpThread(url,map){
                 @Override
                 public void getObj(final JSONObject obj) throws JSONException {
                     if(obj!=null){
@@ -122,23 +242,52 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
                             @Override
                             public void run() {
                                 try {
-                                    if (obj.get("code").toString().equals("-1"))
+                                    if (!obj.get("code").toString().equals("10000"))
                                         Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
                                     else {
                                         //更新帖子列表显示内容
-                                        group_detail_title.setText(ja2.get("tiezi_title").toString());
-                                        user_name.setText(ja2.get("username").toString());
-                                        write_time.setText("");
-                                        text_content.setText(ja2.get("content").toString());
-                                        like_count.setText(ja2.get("likecount").toString());
-                                        comment_count.setText("评论区("+ja2.length()+")");
+                                        LogUtils.v(ja2.get("userHeadPic").toString());
+
+                                        group_detail_title.setText(ja2.get("title").toString());
+                                        user_name.setText(ja2.get("userName").toString());
+                                        write_time.setText(DateUtils.TimeStamp2Date(ja2.get("createTime").toString(), DateUtils.DATE_FORMAT3));
+                                        text_content.setText(ja2.get("context").toString());
+                                        like_count.setText(ja2.get("admirenum").toString());
+                                        comment_count.setText("评论区("+ja2.get("commentnum").toString()+")");
+                                        //是否已经点赞
+                                        if(!ja2.get("isAdmire").toString().equals("0")){
+                                            group_like_pic.setImageResource(R.drawable.like_pressed);
+                                        }else{
+                                            group_like_pic.setImageResource(R.drawable.like_unclick);
+                                        }
+                                        isAdmire = ja2.get("isAdmire").toString();
+                                        bitmapUtils.display(touxiang, Constant.getUrl() + "upload/media/images/" + ja2.get("userHeadPic").toString());
+                                        if(!Constant.isActivitied){
+                                            LogUtils.v(Constant.isActivitied+"");
+                                            new SweetAlertDialog(group_detail.this, SweetAlertDialog.ERROR_TYPE)
+                                                    .setTitleText("未登录")
+                                                    .setContentText("未登录的状态下不能进行评论等相关操作，请重新登录!")
+                                                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                                        @Override
+                                                        public void onClick(SweetAlertDialog sDialog) {
+                                                            //转回登录页面
+                                                            Intent intent = new Intent();
+                                                            intent.setClass(group_detail.this, LoginActivity.class);
+                                                            //保存登录状态
+                                                            startActivity(intent);
+                                                            finish();
+                                                            MainActivity.emptyAll();
+                                                        }
+                                                    })
+                                                    .show();
+                                        }
+                                        getPinglunList();//获取评论列表
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
                         });
-
                     }
                 }
             };
@@ -147,9 +296,11 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
             e.printStackTrace();
         }
     }
+    //发布评论
+    private void add_comment(final HashMap<String,String> map) {
+        kProgressHUD.show();
 
-    private void add_comment(HashMap<String,String> map) {
-        String url= Constant.getUrl()+"pinlun/addpinlun.htmls";
+        String url= Constant.getUrl()+"app/circle/sendCircleCom.htmls";
         try{
             HttpThread ht = new HttpThread(url,map){
                 @Override
@@ -161,13 +312,14 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
                             @Override
                             public void run() {
                                 try {
-                                    if (obj.get("code").toString().equals("-1"))
+                                    if (!obj.get("code").toString().equals("10000"))
                                         Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
                                     else {
                                         //更新帖子列表显示内容
                                         Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
                                         getPinglunList();
-
+                                        resumeAdapter_comcircle.notifyDataSetChanged();
+                                        currToid = "";//发布完了之后要清空
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -186,11 +338,14 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
 
     //获取评论列表
     private void getPinglunList() throws JSONException {
-        String url= Constant.getUrl()+"pinlun/getpinlun.htmls";
-        HashMap<String,String> map2 = new HashMap<String,String>();
-        map2.put("id", ids);
+        kProgressHUD.show();
+        String url= Constant.getUrl()+"app/circle/loadCircleComs.htmls";
+        HashMap<String,String> map = new HashMap<String,String>();
+        map.put("circleComId", ids);
+        map.put("pageNow", "1");
+
         try{
-            HttpThread ht = new HttpThread(url,map2){
+            HttpThread ht = new HttpThread(url,map){
                 @Override
                 public void getObj(final JSONObject obj) throws JSONException {
                     if(obj!=null){
@@ -199,19 +354,18 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
                         LogUtils.v("obj"+obj.toString());
                         ja1 = obj.getJSONArray("object");
 
-                        LogUtils.v("ja1-评论列表"+ja1.toString());
+                        LogUtils.v("评论列表"+ja1.toString());
                         getHandler.mHandler.post(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    if (obj.get("code").toString().equals("-1"))
+                                    if (!obj.get("code").toString().equals("10000"))
                                         Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
                                     else {
                                         //更新帖子列表显示内容
                                         Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
                                         initAdapter();
-                                        /*commentcount=ja1.length();
-                                        comment_count.setText(commentcount);*/
+                                        kProgressHUD.dismiss();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -229,31 +383,46 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
         }
 
     }
-
+    //初始化评论列表
     private void initAdapter(){
         LogUtils.v("initAdapter");
-        dataList=new ArrayList<Map<String,String>>();
+        dataList=new ArrayList<HashMap<String,String>>();
 
         for(int i=0;i<ja1.length();i++) {
-            Map<String, String> group_map = new HashMap<String, String>();
+            HashMap<String, String> group_map = new HashMap<String, String>();
             try {
                 JSONObject obj = (JSONObject) ja1.get(i);
-                group_map.put("comment_username",obj.get("username").toString());
-                group_map.put("comment_write_time",obj.get("time").toString());
-                group_map.put("comment_text", obj.get("comment").toString());
-                LogUtils.v("each_map"+group_map.values().toString());
+                group_map.put("comment_pic",obj.get("userHeadPic").toString());
+                group_map.put("comment_username",obj.get("userName").toString());
+                group_map.put("comment_time",DateUtils.TimeStamp2Date(obj.get("createTime").toString(), DateUtils.DATE_FORMAT3));
+                if(obj.get("comment").toString().contains("@")){
+                    String[] arr = obj.get("comment").toString().split("##");
+                    group_map.put("comment_text",arr[0]+": "+arr[1]);
+                }else{
+                    group_map.put("comment_text", obj.get("comment").toString());
+                }
+                group_map.put("eachid", obj.get("id").toString());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             dataList.add(group_map);
         }
-
-
-        simple_adapter=new SimpleAdapter(this, dataList, R.layout.group_comment_list, new String[] {"comment_username","comment_write_time","comment_text"},
-                new int[] {R.id.comment_user_name, R.id.comment_write_time, R.id.comment_text});
-        group_list.setAdapter(simple_adapter);
+        resumeAdapter_comcircle=new ResumeAdapter_comcircle(this,group_detail.this,dataList, R.layout.group_comment_list, new String[] {"comment_username","comment_time","comment_text","eachid"},
+                new int[] {R.id.comment_username, R.id.comment_time, R.id.comment_context,R.id.eachid});
+        group_list.setAdapter(resumeAdapter_comcircle);
+        group_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                TextView comment_username = (TextView) view.findViewById(R.id.comment_username);
+                LogUtils.v(comment_username.getText().toString());
+                comment_edit.setText("@" + comment_username.getText().toString() + ": ");
+                comment_edit.setSelection(comment_username.getText().length() + 3);
+                //如果艾特他人，那么userto就是对应评论的id;
+                TextView eachid = (TextView) view.findViewById(R.id.eachid);
+                currToid = eachid.getText().toString();
+            }
+        });
     }
-
 
     @Override
     public void onClick(View v) {
@@ -308,7 +477,6 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         LogUtils.v("velocityX"+velocityX+"velocityY"+velocityY);
-
         LogUtils.v("onFling---------------------------------");
         return false;
     }

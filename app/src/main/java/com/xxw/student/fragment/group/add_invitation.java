@@ -175,7 +175,7 @@ public class add_invitation extends Activity {
                                         @Override
                                         public void run() {
                                             try {
-                                                if (obj.get("code").toString().equals("-1"))
+                                                if (!obj.get("code").toString().equals("10000"))
                                                     Toast.makeText(add_invitation.this, message, Toast.LENGTH_SHORT).show();
                                                 else {
                                                     Toast.makeText(add_invitation.this, message, Toast.LENGTH_SHORT).show();
@@ -211,6 +211,7 @@ public class add_invitation extends Activity {
             @Override
             public void onClick(View v) {
                 //取消事件
+                finish();
             }
         });
         pic.setOnClickListener(new View.OnClickListener() {
