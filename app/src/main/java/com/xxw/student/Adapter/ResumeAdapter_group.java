@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * 公司评论的adapter
+ * 圈子的adapter
  * Created by DarkReal on 2016/7/24.
  */
 public class ResumeAdapter_group extends BaseAdapter {
