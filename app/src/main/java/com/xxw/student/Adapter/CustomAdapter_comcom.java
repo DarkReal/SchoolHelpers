@@ -30,7 +30,7 @@ import java.util.List;
  * 公司评论的adapter
  * Created by DarkReal on 2016/7/24.
  */
-public class ResumeAdapter_comcom extends BaseAdapter {
+public class CustomAdapter_comcom extends BaseAdapter {
 
     //使用viewHolder提高效率
     public class TextViewHolder {
@@ -58,7 +58,7 @@ public class ResumeAdapter_comcom extends BaseAdapter {
 
     private BitmapUtils bitmapUtils;
 
-    public ResumeAdapter_comcom(Context context, Activity activity, List<HashMap<String, String>> list,
+    public CustomAdapter_comcom(Context context, Activity activity, List<HashMap<String, String>> list,
                                 int layoutID, String flag[], int ItemIDs[]) {
         this.mInflater = LayoutInflater.from(context);
         this.list = list;
