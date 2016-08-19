@@ -12,11 +12,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.xxw.student.Adapter.ResumeAdapter_group;
+import com.xxw.student.Adapter.CustomAdapter_group;
 import com.xxw.student.R;
 import com.xxw.student.fragment.group.add_invitation;
 import com.xxw.student.fragment.group.group_detail;
@@ -37,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 圈子
@@ -45,7 +43,7 @@ import java.util.Map;
  */
 public class contentFragment_quanzi extends Fragment implements pullrefresh_view.OnHeaderRefreshListener{
     private View rootview;
-    private ResumeAdapter_group resumeAdapter_group;
+    private CustomAdapter_group customAdapter_group;
     private ListView group_list_ever;
 
     private FloatingActionButton fab;
@@ -69,7 +67,7 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
         Commonhandler.comHandler = new Handler(){
             public void handleMessage (Message msg) {
                 getData(msg.what+"");
-                resumeAdapter_group.notifyDataSetChanged();//刷新显示
+                customAdapter_group.notifyDataSetChanged();//刷新显示
             }
         };
 
@@ -144,9 +142,9 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
                 }
         }
         LogUtils.v(group_datalist.toString());
-        resumeAdapter_group=new ResumeAdapter_group(rootview.getContext(),getActivity(), group_datalist, R.layout.group_list_ever, new String[] {"text_id","group_list_name","group_list_title","group_list_content","group_list_like","group_list_comment"},
+        customAdapter_group =new CustomAdapter_group(rootview.getContext(),getActivity(), group_datalist, R.layout.group_list_ever, new String[] {"text_id","group_list_name","group_list_title","group_list_content","group_list_like","group_list_comment"},
                 new int[] {R.id.text_id, R.id.group_list_name, R.id.group_list_title, R.id.group_list_content,R.id.group_list_like,R.id.group_list_comment});
-        group_list_ever.setAdapter(resumeAdapter_group);
+        group_list_ever.setAdapter(customAdapter_group);
         group_list_ever.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

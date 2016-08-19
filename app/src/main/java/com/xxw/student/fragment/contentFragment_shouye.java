@@ -2,8 +2,6 @@ package com.xxw.student.fragment;
 
 import android.app.Fragment;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -18,18 +16,14 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lidroid.xutils.BitmapUtils;
-import com.xxw.student.Adapter.ResumeAdapter_companyList;
-import com.xxw.student.Adapter.ResumeAdapter_hjjl;
+import com.xxw.student.Adapter.CustomAdapter_companyList;
 import com.xxw.student.MainActivity;
-import com.xxw.student.PageModel.AppCompany;
 import com.xxw.student.R;
 import com.xxw.student.shouye_detail.company_detail;
-import com.xxw.student.utils.CompressImage;
 import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
@@ -40,19 +34,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 首页
@@ -77,7 +65,7 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
     private BitmapUtils bitmapUtils;
     public static JSONArray companyListja;
     private List<HashMap<String,String>> company_datalist;
-    private ResumeAdapter_companyList resumeAdapter_companyList;
+    private CustomAdapter_companyList customAdapter_companyList;
 
 
     //存放图片的id
@@ -112,6 +100,52 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
 
         images = new ArrayList<ImageView>();
 
+        //初始化轮播机制然后加载图片修改背景图
+
+
+        //初始化三张默认的图
+        imagesStr.add("banner1.png");
+        imagesStr.add("banner1.png");
+        imagesStr.add("banner1.png");
+
+
+        viewPager.setAdapter(new ImageAdapter(imagesStr));
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            //配合Adapter的currentItem字段进行设置。
+            @Override
+            public void onPageSelected(int arg0) {
+
+                dots.get(arg0 % imagesStr.size()).setBackgroundResource(R.drawable.dot_focused);
+                dots.get(oldPosition).setBackgroundResource(R.drawable.dot_normal);
+                oldPosition = arg0 % imagesStr.size();
+                handler.sendMessage(Message.obtain(handler, ImageHandler.MSG_PAGE_CHANGED, arg0, 0));
+            }
+
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+            }
+
+            //覆写该方法实现轮播效果的暂停和恢复
+            @Override
+            public void onPageScrollStateChanged(int arg0) {
+                switch (arg0) {
+                    case ViewPager.SCROLL_STATE_DRAGGING:
+                        handler.sendEmptyMessage(ImageHandler.MSG_KEEP_SILENT);
+                        break;
+                    case ViewPager.SCROLL_STATE_IDLE:
+                        handler.sendEmptyMessageDelayed(ImageHandler.MSG_UPDATE_IMAGE, ImageHandler.MSG_DELAY);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        viewPager.setCurrentItem(Integer.MAX_VALUE / 2);//默认在中间，使用户看不到边界
+        //初始化点的颜色情况
+        dots.get(0).setBackgroundResource(R.drawable.dot_focused);
+        //开始轮播效果
+        handler.sendEmptyMessageDelayed(ImageHandler.MSG_UPDATE_IMAGE, ImageHandler.MSG_DELAY);
         getIndexImage();//获取图片资源    并配置适配器
         getCompanyList();
         return view;
@@ -177,9 +211,9 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
         }catch (JSONException e){
             e.printStackTrace();
         }
-        resumeAdapter_companyList = new ResumeAdapter_companyList(view.getContext(), getActivity(), company_datalist, R.layout.company_list_ever, new String[]{"companyName","companyDesc", "companyId", "count_job","company_city"},
+        customAdapter_companyList = new CustomAdapter_companyList(view.getContext(), getActivity(), company_datalist, R.layout.company_list_ever, new String[]{"companyName","companyDesc", "companyId", "count_job","company_city"},
                 new int[]{R.id.company_name, R.id.company_desc, R.id.company_id, R.id.count_job,R.id.company_city});
-        company_list.setAdapter(resumeAdapter_companyList);
+        company_list.setAdapter(customAdapter_companyList);
 
         company_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -212,65 +246,34 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
                         LogUtils.v("--jsonstr--"+obj.toString());
                         LogUtils.v("message: "+obj.get("message").toString());
 
-//                        getHandler.mHandler.post(new Runnable() {
-//                                @Override
-//                                public void run() {
-                                    try {
-                                        if (!obj.get("code").toString().equals("10000"))
-                                            Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
-                                        else {
-                                            ja = (JSONArray) obj.get("object");
-                                            json = (JSONObject) ja.get(0);
+                        getHandler.mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if (!obj.get("code").toString().equals("10000"))
+                                        Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+                                    else {
+                                        ja = (JSONArray) obj.get("object");
+                                        json = (JSONObject) ja.get(0);
+                                        //清空默认图片
+                                        LogUtils.v(imagesStr.toString());
+                                        imagesStr.removeAll(imagesStr);
 
-                                            imagesStr.add(json.getString("pic1").toString());
-                                            imagesStr.add(json.getString("pic2").toString());
-                                            imagesStr.add(json.getString("pic3").toString());
+                                        imagesStr.add(json.getString("pic1").toString());
+                                        imagesStr.add(json.getString("pic2").toString());
+                                        imagesStr.add(json.getString("pic3").toString());
 
-                                            LogUtils.v("before_set_image" + imagesStr.size() + "");
-                                            viewPager.setAdapter(new ImageAdapter(imagesStr));
-                                            viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                                        LogUtils.v(imagesStr.toString());
 
-                                                //配合Adapter的currentItem字段进行设置。
-                                                @Override
-                                                public void onPageSelected(int arg0) {
-
-                                                    dots.get(arg0 % imagesStr.size()).setBackgroundResource(R.drawable.dot_focused);
-                                                    dots.get(oldPosition).setBackgroundResource(R.drawable.dot_normal);
-                                                    oldPosition = arg0 % imagesStr.size();
-                                                    handler.sendMessage(Message.obtain(handler, ImageHandler.MSG_PAGE_CHANGED, arg0, 0));
-                                                }
-
-                                                @Override
-                                                public void onPageScrolled(int arg0, float arg1, int arg2) {
-                                                }
-
-                                                //覆写该方法实现轮播效果的暂停和恢复
-                                                @Override
-                                                public void onPageScrollStateChanged(int arg0) {
-                                                    switch (arg0) {
-                                                        case ViewPager.SCROLL_STATE_DRAGGING:
-                                                            handler.sendEmptyMessage(ImageHandler.MSG_KEEP_SILENT);
-                                                            break;
-                                                        case ViewPager.SCROLL_STATE_IDLE:
-                                                            handler.sendEmptyMessageDelayed(ImageHandler.MSG_UPDATE_IMAGE, ImageHandler.MSG_DELAY);
-                                                            break;
-                                                        default:
-                                                            break;
-                                                    }
-                                                }
-                                            });
-                                            viewPager.setCurrentItem(Integer.MAX_VALUE / 2);//默认在中间，使用户看不到边界
-                                            //初始化点的颜色情况
-                                            dots.get(0).setBackgroundResource(R.drawable.dot_focused);
-                                            //开始轮播效果
-                                            handler.sendEmptyMessageDelayed(ImageHandler.MSG_UPDATE_IMAGE, ImageHandler.MSG_DELAY);
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                        LogUtils.v("before_set_image" + imagesStr.size() + "");
+                                        viewPager.setAdapter(new ImageAdapter(imagesStr));
                                     }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-//                            });
-//                        }
+                            }
+                        });
+                        }
                     }
                 };
             ht.start();
