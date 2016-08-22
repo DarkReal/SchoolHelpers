@@ -4,13 +4,13 @@ import android.app.Fragment;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -20,30 +20,29 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lidroid.xutils.BitmapUtils;
-import com.xxw.student.Adapter.ResumeAdapter_comcom;
+import com.xxw.student.Adapter.CustomAdapter_comcom;
 import com.xxw.student.MainActivity;
 import com.xxw.student.R;
 import com.xxw.student.utils.Constant;
+import com.xxw.student.utils.DateUtils;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
-import com.xxw.student.utils.ResponseMessage;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.loading.KProgressHUD;
+import com.xxw.student.view.pullrefreshAndLoad.XListView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 公司详情页--公司简介
  * Created by DarkReal on 2016/4/11.
  */
-public class company_detail_index extends Fragment implements View.OnClickListener{
+public class company_detail_index extends Fragment implements View.OnClickListener,XListView.IXListViewListener{
     private View view;
     private ViewGroup mcontainer;
     private LayoutInflater minflater;
@@ -53,32 +52,49 @@ public class company_detail_index extends Fragment implements View.OnClickListen
     private ImageView detail_cancel;
 
     private SimpleAdapter simple_adapter;
-    private ListView comment_list;
+    private XListView comment_list;
     private ArrayList<HashMap<String, String>> comment_dataList;
-    private GestureDetector gestureDetector;
-    private  String id = company_detail.company_id;//获取到公司的id对应获取评论列表
+    private String id = company_detail.company_id;//获取到公司的id对应获取评论列表
     private JSONArray ja;//盛放评论列表
     private JSONObject jo;//单个评论的时候
     private BitmapUtils bitmapUtils;
 
     private ImageView company_pic;
     private TextView company_details,company_address,company_website;
-    private ResumeAdapter_comcom resumeAdapter_comcom;
+    private CustomAdapter_comcom customAdapter_comcom;
     private TextView noneWord;
     private EditText comment_edit;
     private TextView comment_send;
     private HashMap<String,String> map;
+
+    private int currentPage = 1;
+    private Handler mHandler;
+    private boolean isload = false;//默认false 为true的时候表示是以加载为意图刷新的显示列表
+
+    private KProgressHUD kProgressHUD;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         minflater = inflater;
         mcontainer = container;
         view = inflater.inflate(R.layout.company_detail_index,container,false);
+
+        //初始化加载控件
+        kProgressHUD = new KProgressHUD(view.getContext());
+        kProgressHUD.setAnimationSpeed(2);
+        kProgressHUD.setDimAmount(0.5f);
+
         bitmapUtils = new BitmapUtils(view.getContext());
         init();
         //initData
         getPinlunlist();
-        comment_list= (ListView) view.findViewById(R.id.company_index_comment);
+        comment_list= (XListView) view.findViewById(R.id.company_index_comment);
+        comment_list.setPullLoadEnable(true, false);//可以加载
+        comment_list.setPullRefreshEnable(false);//不能刷新
+        comment_list.setXListViewListener(this);
+        mHandler = new Handler();
+
         show_more = (TextView) view.findViewById(R.id.show_more);
         show_more.setOnClickListener(new View.OnClickListener() {
             WindowManager.LayoutParams lp = getActivity().getWindow().getAttributes();
@@ -137,11 +153,12 @@ public class company_detail_index extends Fragment implements View.OnClickListen
     }
 
     private void getPinlunlist() {
+        kProgressHUD.show();
         String url= Constant.getUrl()+"app/company/getComCom.htmls";
         HashMap<String,String> map = new HashMap<String,String>();
 
         map.put("companyId", id);
-        map.put("pageNow", "0");
+        map.put("pageNow", currentPage+"");
         map.put("token", MainActivity.token);
 
 
@@ -154,24 +171,17 @@ public class company_detail_index extends Fragment implements View.OnClickListen
                         LogUtils.v(obj.get("message").toString());
                         LogUtils.v("obj" + obj.toString());
 
-                        //数量小于等于1的时候，会报出转型错误的警告
-                        ja = obj.getJSONArray("object");
-                        LogUtils.v("ja-评论列表" + ja.toString());
-
                         getHandler.mHandler.post(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    if (obj.get("code").toString().equals("-1"))
+                                    if (!obj.get("code").toString().equals("10000"))
                                         Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
                                     else {
                                         //更新帖子列表显示内容
                                         Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
-                                        try {
-                                            ja = obj.getJSONArray("object");
-                                        }catch (org.json.JSONException e){
-                                            jo = obj.getJSONObject("object");
-                                        }
+                                         ja = obj.getJSONArray("object");
+                                        LogUtils.v("ja.length"+ja.length());
                                         //填充评论列表
                                         fillCommentList();
                                     }
@@ -192,18 +202,35 @@ public class company_detail_index extends Fragment implements View.OnClickListen
     }
 
     private void fillCommentList() {
-        comment_dataList = new ArrayList<HashMap<String,String>>();
+
+        if(!isload){
+            comment_dataList = new ArrayList<HashMap<String,String>>();
+        }
         if(ja.length() == 0){
             noneWord.setVisibility(View.VISIBLE);//显示无内容
         }else {//只要有内容就开始填充
             noneWord.setVisibility(View.GONE);//隐藏空反馈提示
+
+            if(ja.length()<20){
+//                如果不满20，那么关掉加载功能
+                if(comment_dataList.size()<20)
+                    comment_list.setPullLoadEnable(false,true);
+                else
+                    comment_list.setPullLoadEnable(false,false);
+            }else{
+                comment_list.setPullLoadEnable(true,false);
+            }
+
             try {
                 for (int i = 0; i < ja.length(); i++) {
                     JSONObject json = ja.getJSONObject(i);
                     HashMap<String, String> map = new HashMap<String, String>();
                     map.put("touxiang", json.get("headPic").toString());
                     map.put("username", json.get("nickName").toString());
-                    map.put("comment_time", json.get("createTime").toString());
+
+
+
+                    map.put("comment_time", json.get("createTime").toString().equals("null")?null:DateUtils.TimeStamp2Date(json.get("createTime").toString(),DateUtils.DATE_FORMAT3));
                     map.put("comment_value", json.get("comment").toString());
                     map.put("comment_like_pic", json.get("isAdmire").toString());//本人是否点赞
                     map.put("dz_count", json.get("admire").toString());//点赞数
@@ -215,10 +242,14 @@ public class company_detail_index extends Fragment implements View.OnClickListen
                 e.printStackTrace();
             }
         }
-
-        resumeAdapter_comcom = new ResumeAdapter_comcom(view.getContext(),getActivity(), comment_dataList, R.layout.company_comment_ever, new String[] {"username","comment_time","comment_value","dz_count"},
-                 new int[] {R.id.username, R.id.comment_time, R.id.comment_value,R.id.dz_count});
-        comment_list.setAdapter(resumeAdapter_comcom);
+        if(!isload){
+            customAdapter_comcom = new CustomAdapter_comcom(view.getContext(),getActivity(), comment_dataList, R.layout.company_comment_ever, new String[] {"username","comment_time","comment_value","dz_count"},
+                    new int[] {R.id.username, R.id.comment_time, R.id.comment_value,R.id.dz_count});
+            comment_list.setAdapter(customAdapter_comcom);
+        }else{
+            customAdapter_comcom.notifyDataSetChanged();
+        }
+        kProgressHUD.dismiss();
     }
 
     @Override
@@ -228,7 +259,7 @@ public class company_detail_index extends Fragment implements View.OnClickListen
                 sendPinlun();
         }
     }
-        //发送评论
+    //发送评论
     private void sendPinlun() {
         //获取EditText中的内容
         LogUtils.v(comment_edit.getText().toString());
@@ -257,17 +288,8 @@ public class company_detail_index extends Fragment implements View.OnClickListen
                                             //更新
                                             Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
                                             //评论成功
-                                            HashMap<String,String> comment_map = new HashMap<String, String>();
-
-                                            comment_map.put("touxiang", MainActivity.headpic);
-                                            comment_map.put("username", MainActivity.nickname);
-                                            comment_map.put("comment_time", Constant.getCurrentTime());
-                                            comment_map.put("comment_value", map.get("comment").toString());
-                                            comment_map.put("comment_like_pic", "0");//本人是否点赞
-                                            comment_map.put("dz_count", "0");//点赞数
-
-                                            comment_dataList.add(comment_map);
-                                            resumeAdapter_comcom.notifyDataSetChanged();
+                                            getPinlunlist();
+                                            fillCommentList();
                                             //发完了之后清空内容
                                             comment_edit.setText("");
                                         }
@@ -284,11 +306,7 @@ public class company_detail_index extends Fragment implements View.OnClickListen
             }catch (NullPointerException e){
                 e.printStackTrace();
             }
-
-
         }
-        //发送完毕之后清空EditText
-
     }
     //初始化数据
 
@@ -304,8 +322,42 @@ public class company_detail_index extends Fragment implements View.OnClickListen
             super.dismiss();
         }
     }
-    //发布评论之后动态刷新列表
 
+
+    private void onLoad() {
+        comment_list.stopRefresh();
+        comment_list.stopLoadMore();
+        comment_list.setRefreshTime("刚刚");
+    }
+
+    @Override
+    public void onRefresh() {
+
+    }
+
+    @Override
+    public void onLoadMore() {
+        LogUtils.v("onLoadMore -----底部加载");
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                currentPage++;
+                LogUtils.v(currentPage + "");
+                isload = true;
+                getPinlunlist();
+                onLoad();
+            }
+        }, 1000);
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        currentPage = 1;
+        isload = false;
+        getPinlunlist();
+    }
 
 
 }

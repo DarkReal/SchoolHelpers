@@ -3,22 +3,23 @@ package com.xxw.student.shouye_detail;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.xxw.student.Adapter.ResumeAdapter_jobList;
+import com.xxw.student.Adapter.CustomAdapter_jobList;
 import com.xxw.student.R;
 import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.loading.KProgressHUD;
+import com.xxw.student.view.pullrefreshAndLoad.XListView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,23 +28,27 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 公司详情页--职位列表
  * Created by DarkReal on 2016/4/11.
  */
-public class company_detail_job extends Fragment {
+public class company_detail_job extends Fragment{
     private View view;
     //公司图片
     private ListView job_list;
-    private List<HashMap<String, String>> dataList;
+    private ArrayList<HashMap<String, String>> dataList;
     private String id = company_detail.company_id;
     private JSONArray ja;
-    private ResumeAdapter_jobList resumeAdapter_jobList;
+    private CustomAdapter_jobList customAdapter_jobList;
+    private KProgressHUD kProgressHUD;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.company_detail_job,container,false);
+        //初始化加载控件
+        kProgressHUD = new KProgressHUD(view.getContext());
+        kProgressHUD.setAnimationSpeed(2);
+        kProgressHUD.setDimAmount(0.5f);
         initData();
         return view;
     }
@@ -51,6 +56,8 @@ public class company_detail_job extends Fragment {
     private void initData() {
 
         job_list= (ListView) view.findViewById(R.id.job_list);
+
+        kProgressHUD.show();
         String url= Constant.getUrl()+"app/company/getRecruitByComId.htmls";
         HashMap<String,String> map = new HashMap<String,String>();
 
@@ -64,18 +71,19 @@ public class company_detail_job extends Fragment {
                         final String message = obj.get("message").toString();
                         LogUtils.v("message: "+obj.get("message").toString());
                         LogUtils.v("obj"+obj.toString());
-                        ja = obj.getJSONArray("object");
 
-                        LogUtils.v("ja-职位列表"+ja.toString());
+
+
                         getHandler.mHandler.post(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    if (obj.get("code").toString().equals("-1"))
+                                    if (!obj.get("code").toString().equals("10000"))
                                         Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
                                     else {
                                         //更新帖子列表显示内容
                                         //Toast.makeText(company_detail.this, message, Toast.LENGTH_SHORT).show();
+                                        ja = obj.getJSONArray("object");
                                         dataList=new ArrayList<HashMap<String, String>>();
                                         for(int i=0;i<ja.length();i++){
                                             HashMap<String, String> job_map = new HashMap<String, String>();
@@ -90,26 +98,26 @@ public class company_detail_job extends Fragment {
                                             dataList.add(job_map);
                                         }
 
-                                        resumeAdapter_jobList=new ResumeAdapter_jobList(view.getContext(),getActivity(), dataList, R.layout.company_job_ever, new String[] {"recruitName","createTime","moneyMonth","workPlace","id"},
-                                                new int[] {R.id.job_name, R.id.apply_time, R.id.job_offer, R.id.job_location, R.id.job_id});
+                                            LogUtils.v(dataList.size()+"");
+                                            customAdapter_jobList =new CustomAdapter_jobList(view.getContext(),getActivity(), dataList, R.layout.company_job_ever, new String[] {"recruitName","createTime","moneyMonth","workPlace","id"},
+                                                    new int[] {R.id.job_name, R.id.apply_time, R.id.job_offer, R.id.job_location, R.id.job_id});
+                                            job_list.setAdapter(customAdapter_jobList);
+                                            job_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                                @Override
+                                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                                        job_list.setAdapter(resumeAdapter_jobList);
-                                        job_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                            @Override
-                                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-
-                                                Intent intent = new Intent();
-                                                intent.setClass(view.getContext(),job_detail.class);
-                                                Bundle bundle=new Bundle();
-                                                //获得单击部分的隐藏起来的company_id的text的值
-                                                TextView tv = (TextView) view.findViewById(R.id.job_id);
-                                                String ids = tv.getText().toString();
-                                                bundle.putString("id", ids);
-                                                intent.putExtras(bundle);
-                                                startActivity(intent);
-                                            }
-                                        });
+                                                    Intent intent = new Intent();
+                                                    intent.setClass(view.getContext(),job_detail.class);
+                                                    Bundle bundle=new Bundle();
+                                                    //获得单击部分的隐藏起来的company_id的text的值
+                                                    TextView tv = (TextView) view.findViewById(R.id.job_id);
+                                                    String ids = tv.getText().toString();
+                                                    bundle.putString("id", ids);
+                                                    intent.putExtras(bundle);
+                                                    startActivity(intent);
+                                                }
+                                            });
+                                        kProgressHUD.dismiss();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -126,4 +134,5 @@ public class company_detail_job extends Fragment {
             e.printStackTrace();
         }
     }
+
 }

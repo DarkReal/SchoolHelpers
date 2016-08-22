@@ -24,6 +24,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.loading.KProgressHUD;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +35,7 @@ import java.util.HashMap;
  * 公司详情页，包含两个内页fragment:  公司简介/职位列表页
  * Created by DarkReal on 2016/4/11.
  */
-public class company_detail extends Activity implements View.OnClickListener,GestureDetector.OnGestureListener{
+public class company_detail extends Activity implements View.OnClickListener{
 
 
     private Fragment[] company_detail_frag = new Fragment[2];
@@ -45,7 +46,6 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
     private View[] below_line = new View[2];
     private View line1,line2;
     private LinearLayout return_before;
-    private GestureDetector gestureDetector;
     private String ids;
     private JSONObject ja;
     private TextView company_name,company_desc,company_city,count_job;
@@ -55,18 +55,23 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
     private BitmapUtils bitmapUtils;
     public static JSONObject company_json;
     private boolean[] page_select={false,false};
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.company_detail_show);
+
+
+
         Bundle bundle=getIntent().getExtras();
         ids=bundle.getString("id");
-        //LogUtils.v("group_detail_id"+ids);
         company_id = ids;
 
-        init();//初始化切换页的动作行为
+        init();
         getDefault();
 
+        //初始化切换页的动作行为
         setTxtEvent();
         setContentFragment();
     }
@@ -115,7 +120,6 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
         below_line[1] = line2;
         return_before= (LinearLayout) findViewById(R.id.return_before);
         return_before.setOnClickListener(this);
-        gestureDetector = new GestureDetector(this,this);
 
         company_name = (TextView) findViewById(R.id.company_name);
         company_desc = (TextView) findViewById(R.id.company_desc);
@@ -131,9 +135,6 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
             tv.setOnClickListener(this);
         }
     }
-
-
-
 
     public void setContentFragment(){
         page_select[0] = true ;
@@ -191,57 +192,5 @@ public class company_detail extends Activity implements View.OnClickListener,Ges
         page_select[0]=false;
         page_select[1]=false;
         page_select[index]=true;
-    }
-
-
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return gestureDetector.onTouchEvent(event);
-    }
-
-    @Override
-    public boolean onDown(MotionEvent e) {
-        LogUtils.v("onDown------------------------------");
-        return false;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent e) {
-        LogUtils.v("onShowPress------------------------------");
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        LogUtils.v("onSingleTapUp------------------------------");
-        return false;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        //滑动返回
-        LogUtils.v("distanceX"+e1+"    distanceY"+e2);
-        if(e2.getX()-e1.getX()>50&&e2.getY()-e1.getY()<50)
-        {
-            LogUtils.v("足够位移");
-            finish();
-            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        }
-        LogUtils.v("onScroll------------------------------");
-
-        //下拉刷新
-
-        return false;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent e) {
-        LogUtils.v("onLongPress------------------------------");
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        LogUtils.v("onFling---------------------------------");
-        return false;
     }
 }
