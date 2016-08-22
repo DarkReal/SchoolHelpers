@@ -26,6 +26,7 @@ import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
 import com.xxw.student.view.GoodView;
+import com.xxw.student.view.MaterialDialog;
 import com.xxw.student.view.loading.KProgressHUD;
 import com.xxw.student.view.sweetdialog.SweetAlertDialog;
 
@@ -64,9 +65,6 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
     private String isAdmire;//这个帖子是否已经点过赞了
     private String currToid;//回复的评论的id
     private KProgressHUD kProgressHUD;//刷新控件
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,7 +193,11 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
                             public void run() {
                                 try {
                                     if (!obj.get("code").toString().equals("10000"))
-                                        Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
+                                        new MaterialDialog(group_detail.this)
+                                                .setTitle("警告")
+                                                .autodismiss(2000)
+                                                .setMessage(message)
+                                                .show();
                                     else {
                                         //更新帖子列表显示内容
                                         Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
@@ -239,7 +241,11 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
                             public void run() {
                                 try {
                                     if (!obj.get("code").toString().equals("10000"))
-                                        Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
+                                        new MaterialDialog(group_detail.this)
+                                                .setTitle("警告")
+                                                .autodismiss(2000)
+                                                .setMessage(message)
+                                                .show();
                                     else {
                                         //更新帖子列表显示内容
                                         LogUtils.v(ja2.get("userHeadPic").toString());
@@ -309,7 +315,11 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
                             public void run() {
                                 try {
                                     if (!obj.get("code").toString().equals("10000"))
-                                        Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
+                                        new MaterialDialog(group_detail.this)
+                                                .setTitle("警告")
+                                                .autodismiss(2000)
+                                                .setMessage(message)
+                                                .show();
                                     else {
                                         //更新帖子列表显示内容
                                         Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
@@ -356,7 +366,11 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
                             public void run() {
                                 try {
                                     if (!obj.get("code").toString().equals("10000"))
-                                        Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
+                                        new MaterialDialog(group_detail.this)
+                                                .setTitle("警告")
+                                                .autodismiss(2000)
+                                                .setMessage(message)
+                                                .show();
                                     else {
                                         //更新帖子列表显示内容
                                         Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();

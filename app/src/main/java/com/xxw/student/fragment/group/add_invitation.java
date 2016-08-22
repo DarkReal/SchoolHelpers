@@ -37,6 +37,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -176,7 +177,11 @@ public class add_invitation extends Activity {
                                         public void run() {
                                             try {
                                                 if (!obj.get("code").toString().equals("10000"))
-                                                    Toast.makeText(add_invitation.this, message, Toast.LENGTH_SHORT).show();
+                                                    new MaterialDialog(add_invitation.this)
+                                                            .setTitle("警告")
+                                                            .autodismiss(2000)
+                                                            .setMessage(message)
+                                                            .show();
                                                 else {
                                                     Toast.makeText(add_invitation.this, message, Toast.LENGTH_SHORT).show();
                                                     new Handler().postDelayed(new Runnable() {
