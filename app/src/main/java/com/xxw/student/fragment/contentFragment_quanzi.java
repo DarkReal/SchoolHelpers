@@ -24,49 +24,63 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
-import com.xxw.student.view.pullrefresh_view;
+import com.xxw.student.view.pullrefreshAndLoad.NsRefreshLayout;
+import com.xxw.student.view.pullrefreshAndLoad.XListView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * 圈子
  * Created by xxw on 2016/3/27.
  */
-public class contentFragment_quanzi extends Fragment implements pullrefresh_view.OnHeaderRefreshListener{
+public class contentFragment_quanzi extends Fragment implements NsRefreshLayout.NsRefreshLayoutController, NsRefreshLayout.NsRefreshLayoutListener,XListView.IXListViewListener {
     private View rootview;
     private CustomAdapter_group customAdapter_group;
-    private ListView group_list_ever;
+    private XListView group_list_ever;
 
     private FloatingActionButton fab;
-    private pullrefresh_view mPullToRefreshView;
-    private List<HashMap<String,String>> group_datalist;
+    private boolean loadMoreEnable = false;
+    private NsRefreshLayout refreshLayout;
+    private static ArrayList<HashMap<String,String>> group_datalist;
     private JSONArray ja;
-    public static String index;//默认分类是零
+    public static int index = 0;//默认分类是零
     private ImageView hot_circle;
+    private int currentPage = 1;
+    private Handler mHandler;
+    private boolean isload = false;//默认false 为true的时候表示是以加载为意图刷新的显示列表
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState){
+        //每次都初始化一次
+
+
         rootview = inflater.inflate(R.layout.main_content_quanzi,container,false);
 
-        group_list_ever= (ListView) rootview.findViewById(R.id.group_list_ever);
+        group_list_ever= (XListView) rootview.findViewById(R.id.group_list_ever);
+        group_list_ever.setPullLoadEnable(true);//可以加载
+        group_list_ever.setPullRefreshEnable(false);//不能刷新
+        group_list_ever.setXListViewListener(this);
 
-        mPullToRefreshView = (pullrefresh_view) rootview.findViewById(R.id.quanzi_index);
-        mPullToRefreshView.setOnHeaderRefreshListener(this);
+
+        refreshLayout = (NsRefreshLayout) rootview.findViewById(R.id.quanzi_index);
+        refreshLayout.setRefreshLayoutController(this);
+        refreshLayout.setRefreshLayoutListener(this);
+
         hot_circle = (ImageView) rootview.findViewById(R.id.hot_circle);
 
         initData();
-        getData("0");//获取帖子初始数据
-
+        getData(index + "");//获取帖子初始数据
+        mHandler = new Handler();
         Commonhandler.comHandler = new Handler(){
             public void handleMessage (Message msg) {
-                getData(msg.what+"");
+                isload = false;
+                index = msg.what;
+                //更换分类显示的时候也要恢复currentPage到默认
+                currentPage = 1;
+                getData(index+"");
                 customAdapter_group.notifyDataSetChanged();//刷新显示
             }
         };
@@ -78,7 +92,7 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
 
         HashMap<String,String> map = new HashMap<String,String>();
         map.put("index", index);
-        map.put("pageNow", "1");
+        map.put("pageNow", currentPage+"");
 
         String url= Constant.getUrl()+"app/circle/loadCircleList.htmls";
         try{
@@ -122,10 +136,14 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
     }
     //更新显示
     private void updateview(){
-        group_datalist = new ArrayList<HashMap<String, String>>();
 
+        if(!isload){//如果是刷新就重新加载
+            LogUtils.v("刷新操作");
+            group_datalist = new ArrayList<HashMap<String, String>>();
+        }
+
+//        不是刷新的话不需要初始化只需要在原来的基础上add即可
         for(int i=0;i<ja.length();i++){
-
             try {
                 JSONObject obj = (JSONObject) ja.get(i);
                 HashMap<String,String> group_map = new HashMap<String,String>();
@@ -141,24 +159,37 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
                     e.printStackTrace();
                 }
         }
-        LogUtils.v(group_datalist.toString());
-        customAdapter_group =new CustomAdapter_group(rootview.getContext(),getActivity(), group_datalist, R.layout.group_list_ever, new String[] {"text_id","group_list_name","group_list_title","group_list_content","group_list_like","group_list_comment"},
-                new int[] {R.id.text_id, R.id.group_list_name, R.id.group_list_title, R.id.group_list_content,R.id.group_list_like,R.id.group_list_comment});
-        group_list_ever.setAdapter(customAdapter_group);
-        group_list_ever.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent();
-                intent.setClass(rootview.getContext(), group_detail.class);
-                Bundle bundle = new Bundle();
-                //获得单击部分的隐藏起来的text_id的text的值
-                TextView tv = (TextView) view.findViewById(R.id.text_id);
-                String ids = tv.getText().toString();
-                bundle.putString("id", ids);
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-        });
+        LogUtils.v(group_datalist.size() + "");
+        //数量不够20的时候不需要显示这个
+        if(group_datalist.size()<20){
+            group_list_ever.setPullLoadEnable(false);
+        }else{
+            group_list_ever.setPullLoadEnable(true);
+        }
+
+
+        if(!isload){  //刷新的时候的操作
+            customAdapter_group =new CustomAdapter_group(rootview.getContext(),getActivity(), group_datalist, R.layout.group_list_ever, new String[] {"text_id","group_list_name","group_list_title","group_list_content","group_list_like","group_list_comment"},
+                    new int[] {R.id.text_id, R.id.group_list_name, R.id.group_list_title, R.id.group_list_content,R.id.group_list_like,R.id.group_list_comment});
+            group_list_ever.setAdapter(customAdapter_group);
+            group_list_ever.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent();
+                    intent.setClass(rootview.getContext(), group_detail.class);
+                    Bundle bundle = new Bundle();
+                    //获得单击部分的隐藏起来的text_id的text的值
+                    TextView tv = (TextView) view.findViewById(R.id.text_id);
+                    String ids = tv.getText().toString();
+                    bundle.putString("id", ids);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }
+            });
+        }else{
+            customAdapter_group.notifyDataSetChanged();//这样光标不会出问题
+        }
+
     }
 
 
@@ -184,20 +215,71 @@ public class contentFragment_quanzi extends Fragment implements pullrefresh_view
 
     }
 
+//    下拉刷新
+//    @Override
+//    public void onHeaderRefresh(pullrefresh_view view) {
+//        mPullToRefreshView.postDelayed(new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                Date date = new Date();
+//                DateFormat format=new SimpleDateFormat("MM-dd HH:mm");
+//                String time=format.format(date);
+//                mPullToRefreshView.onHeaderRefreshComplete("上次更新于: "+time);
+//            }
+//        }, 1000);
+//    }
 
     @Override
-    public void onHeaderRefresh(pullrefresh_view view) {
-        mPullToRefreshView.postDelayed(new Runnable() {
+    public boolean isPullRefreshEnable() {
+        return true;
+    }
 
+    @Override
+    public boolean isPullLoadEnable() {
+        return loadMoreEnable;
+    }
+
+    @Override
+    public void onRefresh() {
+        LogUtils.v("onRefresh---顶部下拉刷新");
+        refreshLayout.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Date date = new Date();
-                DateFormat format=new SimpleDateFormat("MM-dd HH:mm");
-                String time=format.format(date);
-                mPullToRefreshView.onHeaderRefreshComplete("上次更新于: "+time);
+                refreshLayout.finishPullRefresh();
+                isload = false;
+                currentPage = 1;
+                getData(index+"");
+            }
+        }, 1000);
+    }
+
+    private void onLoad() {
+        group_list_ever.stopRefresh();
+        group_list_ever.stopLoadMore();
+        group_list_ever.setRefreshTime("刚刚");
+    }
+    @Override
+    public void onLoadMore() {
+        LogUtils.v("onLoadMore -----底部加载");
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                currentPage++;
+                LogUtils.v(currentPage + "");
+                isload = true;
+                getData(index + "");
+                onLoad();
             }
         }, 1000);
     }
 
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        currentPage = 1;
+        isload = false;
+        getData(index+"");
+    }
 }
