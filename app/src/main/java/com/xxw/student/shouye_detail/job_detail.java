@@ -23,6 +23,7 @@ import com.lidroid.xutils.BitmapUtils;
 import com.xxw.student.MainActivity;
 import com.xxw.student.R;
 import com.xxw.student.utils.Constant;
+import com.xxw.student.utils.DateUtils;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
@@ -296,7 +297,7 @@ public class job_detail extends Activity implements View.OnTouchListener,View.On
 										job_workdate.setText(jsons.get("workDate").toString());
 										job_workhappy.setText(jsons.get("workHappy").toString());
 										job_plannum.setText(jsons.get("planNum").toString());
-										job_todate.setText(jsons.get("toDate").toString());
+										job_todate.setText(DateUtils.TimeStamp2Date(jsons.get("toDate").toString(), DateUtils.DATE_FORMAT3));
 
 										String positionDesc = jsons.get("positionDesc").toString();
 										String workRequire = jsons.get("workRequire").toString();
