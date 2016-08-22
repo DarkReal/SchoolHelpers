@@ -114,9 +114,9 @@ public class CustomAdapter_comcom extends BaseAdapter {
             TextView tv = (TextView) convertView.findViewById(ItemIDs[i]);
             tv.setText((String) list.get(position).get(flag[i]));
         }
-        bitmapUtils.display(holder.touxiang, Constant.getUrl() + "upload/media/images/" + list.get(position).get("touxiang"));
+        bitmapUtils.display(holder.touxiang, Constant.getUrl() + "upload/media/images/" + list.get(position).get("touxiang").toString());
 
-        LogUtils.v(position+"----"+holder.ispressed.toString());
+//        LogUtils.v(position+"----"+holder.ispressed.toString());
         if(holder.ispressed.toString().equals("1")){
             holder.company_like_pic.setImageResource(R.drawable.like_pressed);
         }else{
@@ -124,7 +124,6 @@ public class CustomAdapter_comcom extends BaseAdapter {
         }
 
         holder.eachid = list.get(position).get("eachid").toString();
-
 
         if(Integer.parseInt(list.get(position).get("dz_count")) > 0){//点赞数不为0的时候,显示点赞数
             holder.dz_count.setVisibility(View.VISIBLE);

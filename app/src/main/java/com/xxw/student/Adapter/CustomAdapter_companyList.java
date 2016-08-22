@@ -117,9 +117,9 @@ public class CustomAdapter_companyList extends BaseAdapter {
             TextView tv = (TextView) convertView.findViewById(ItemIDs[i]);
             tv.setText((String) list.get(position).get(flag[i]));
         }
-        LogUtils.v(list.get(position).get("companyPic"));
-        LogUtils.v(Constant.getUrl() + "upload/media/images/" + list.get(position).get("companyPic"));
-        //初始化图片
+//        LogUtils.v(list.get(position).get("companyPic"));
+//        LogUtils.v(Constant.getUrl() + "upload/media/images/" + list.get(position).get("companyPic"));
+//        初始化图片
         try {
             Thread.sleep(10);
         } catch (InterruptedException e) {
