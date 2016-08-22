@@ -24,6 +24,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.loading.KProgressHUD;
 import com.xxw.student.view.pullrefreshAndLoad.NsRefreshLayout;
 import com.xxw.student.view.pullrefreshAndLoad.XListView;
 
@@ -53,14 +54,23 @@ public class contentFragment_quanzi extends Fragment implements NsRefreshLayout.
     private int currentPage = 1;
     private Handler mHandler;
     private boolean isload = false;//默认false 为true的时候表示是以加载为意图刷新的显示列表
+    private KProgressHUD kProgressHUD;
+
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState){
         //每次都初始化一次
 
 
         rootview = inflater.inflate(R.layout.main_content_quanzi,container,false);
 
+        //初始化加载控件
+        kProgressHUD = new KProgressHUD(rootview.getContext());
+        kProgressHUD.setAnimationSpeed(2);
+        kProgressHUD.setDimAmount(0.5f);
+
+
+
         group_list_ever= (XListView) rootview.findViewById(R.id.group_list_ever);
-        group_list_ever.setPullLoadEnable(true);//可以加载
+        group_list_ever.setPullLoadEnable(true,false);//可以加载
         group_list_ever.setPullRefreshEnable(false);//不能刷新
         group_list_ever.setXListViewListener(this);
 
@@ -89,7 +99,7 @@ public class contentFragment_quanzi extends Fragment implements NsRefreshLayout.
     }
 
     private void getData(String index) {
-
+        kProgressHUD.show();
         HashMap<String,String> map = new HashMap<String,String>();
         map.put("index", index);
         map.put("pageNow", currentPage+"");
@@ -161,10 +171,13 @@ public class contentFragment_quanzi extends Fragment implements NsRefreshLayout.
         }
         LogUtils.v(group_datalist.size() + "");
         //数量不够20的时候不需要显示这个
-        if(group_datalist.size()<20){
-            group_list_ever.setPullLoadEnable(false);
+        if(ja.length()<20){
+            if(group_datalist.size()<20)
+                group_list_ever.setPullLoadEnable(false,true);
+            else
+                group_list_ever.setPullLoadEnable(false,false);
         }else{
-            group_list_ever.setPullLoadEnable(true);
+            group_list_ever.setPullLoadEnable(true,false);
         }
 
 
@@ -189,7 +202,7 @@ public class contentFragment_quanzi extends Fragment implements NsRefreshLayout.
         }else{
             customAdapter_group.notifyDataSetChanged();//这样光标不会出问题
         }
-
+        kProgressHUD.dismiss();
     }
 
 
@@ -214,21 +227,6 @@ public class contentFragment_quanzi extends Fragment implements NsRefreshLayout.
     private void getHotCircle() {
 
     }
-
-//    下拉刷新
-//    @Override
-//    public void onHeaderRefresh(pullrefresh_view view) {
-//        mPullToRefreshView.postDelayed(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                Date date = new Date();
-//                DateFormat format=new SimpleDateFormat("MM-dd HH:mm");
-//                String time=format.format(date);
-//                mPullToRefreshView.onHeaderRefreshComplete("上次更新于: "+time);
-//            }
-//        }, 1000);
-//    }
 
     @Override
     public boolean isPullRefreshEnable() {

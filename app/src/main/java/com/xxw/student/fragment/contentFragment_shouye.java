@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +27,9 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.loading.KProgressHUD;
+import com.xxw.student.view.pullrefreshAndLoad.NsRefreshLayout;
+import com.xxw.student.view.pullrefreshAndLoad.XListView;
 import com.xxw.student.view.pullrefresh_view;
 
 import org.json.JSONArray;
@@ -47,7 +49,7 @@ import java.util.List;
  * Created by xxw on 2016/3/27.
  */
 
-public class contentFragment_shouye extends Fragment implements GestureDetector.OnGestureListener,View.OnTouchListener, pullrefresh_view.OnHeaderRefreshListener {
+public class contentFragment_shouye extends Fragment implements GestureDetector.OnGestureListener,View.OnTouchListener,NsRefreshLayout.NsRefreshLayoutController, NsRefreshLayout.NsRefreshLayoutListener,XListView.IXListViewListener {
 
     /**
      * 轮播图
@@ -67,25 +69,43 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
     private List<HashMap<String,String>> company_datalist;
     private CustomAdapter_companyList customAdapter_companyList;
 
+    private int currentPage = 1;
+    private Handler mHandler;
+    private boolean isload = false;//默认false 为true的时候表示是以加载为意图刷新的显示列表
 
+    //下拉刷新上拉加载
     //存放图片的id
     private static ArrayList<String> imagesStr;
     private ImageHandler handler = new ImageHandler(new WeakReference<contentFragment_shouye>(this));
-
-
+    private boolean loadMoreEnable = false;
+    private NsRefreshLayout refreshLayout;
+    private KProgressHUD kProgressHUD;//刷新控件
     private int oldPosition=0;
     /**
      * 公司列表
      */
-    private ListView company_list;
+    private XListView company_list;
 
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.main_content_shouye, container, false);
-        company_list= (ListView) view.findViewById(R.id.company_list);
-        //初始化
-        mPullToRefreshView = (pullrefresh_view) view.findViewById(R.id.main_pull_refresh_view);
-        mPullToRefreshView.setOnHeaderRefreshListener(this);
+        mHandler = new Handler();
+        company_list= (XListView) view.findViewById(R.id.company_list);
+        company_list.setPullLoadEnable(true, false);//可以加载
+        company_list.setPullRefreshEnable(false);//不能刷新
+        company_list.setXListViewListener(this);
+
+        //初始化加载控件
+        kProgressHUD = new KProgressHUD(view.getContext());
+        kProgressHUD.setAnimationSpeed(2);
+        kProgressHUD.setDimAmount(0.5f);
+
+        //下拉刷新
+        refreshLayout = (NsRefreshLayout) view.findViewById(R.id.main_pull_refresh_view);
+        refreshLayout.setRefreshLayoutController(this);
+        refreshLayout.setRefreshLayoutListener(this);
+
+        //轮播图
         viewPager = (ViewPager) view.findViewById(R.id.vp);
         search_icon = (LinearLayout) view.findViewById(R.id.search_icon);
         content_list = (LinearLayout) view.findViewById(R.id.content_layout_shouye);
@@ -152,9 +172,10 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
     }
 
     private void getCompanyList() {
+        kProgressHUD.show();
         HashMap<String,String> map = new HashMap<String,String>();
         map.put("city", MainActivity.city);
-        map.put("pageNow","0");
+        map.put("pageNow",currentPage+"");
         String url = Constant.getUrl() + "app/company/getCompanyList.htmls";
         try {
             HttpThread ht = new HttpThread(url,map) {
@@ -194,7 +215,10 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
     }
     //初始化公司列表
     private void filltheList() {
-        company_datalist = new ArrayList<HashMap<String, String>>();
+        if(!isload){
+            company_datalist = new ArrayList<HashMap<String, String>>();
+        }
+
         try {
             for (int i = 0; i < companyListja.length(); i++) {
                 JSONObject jsonObject = (JSONObject) companyListja.get(i);
@@ -211,30 +235,44 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
         }catch (JSONException e){
             e.printStackTrace();
         }
-        customAdapter_companyList = new CustomAdapter_companyList(view.getContext(), getActivity(), company_datalist, R.layout.company_list_ever, new String[]{"companyName","companyDesc", "companyId", "count_job","company_city"},
-                new int[]{R.id.company_name, R.id.company_desc, R.id.company_id, R.id.count_job,R.id.company_city});
-        company_list.setAdapter(customAdapter_companyList);
 
-        company_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent();
-                intent.setClass(view.getContext(), company_detail.class);
-                Bundle bundle = new Bundle();
-                //获得单击部分的隐藏起来的company_id的text的值
-                TextView tv = (TextView) view.findViewById(R.id.company_id);
-                String ids = tv.getText().toString();
-                bundle.putString("id", ids);
-                intent.putExtras(bundle);
-                startActivity(intent);
-                LogUtils.v("click item!!!");
-            }
-        });
+        if(companyListja.length()<20){
+            if(company_datalist.size()<20)
+                company_list.setPullLoadEnable(false,true);
+            else
+                company_list.setPullLoadEnable(false,false);
+        }else{
+            company_list.setPullLoadEnable(true,false);
+        }
+        if(!isload){
+            customAdapter_companyList = new CustomAdapter_companyList(view.getContext(), getActivity(), company_datalist, R.layout.company_list_ever, new String[]{"companyName","companyDesc", "companyId", "count_job","company_city"},
+                    new int[]{R.id.company_name, R.id.company_desc, R.id.company_id, R.id.count_job,R.id.company_city});
+            company_list.setAdapter(customAdapter_companyList);
+
+            company_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Intent intent = new Intent();
+                    intent.setClass(view.getContext(), company_detail.class);
+                    Bundle bundle = new Bundle();
+                    //获得单击部分的隐藏起来的company_id的text的值
+                    TextView tv = (TextView) view.findViewById(R.id.company_id);
+                    String ids = tv.getText().toString();
+                    bundle.putString("id", ids);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }
+            });
+        }else{
+            customAdapter_companyList.notifyDataSetChanged();//这样光标不会出问题
+        }
+        kProgressHUD.dismiss();
 
     }
 
     //获取首页图片
     private void getIndexImage() {
+        kProgressHUD.show();
         String url = Constant.getUrl() + "app/company/getIndexPics.htmls";
         //先获取首页的三张图片的名字
         try {
@@ -249,6 +287,7 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
                         getHandler.mHandler.post(new Runnable() {
                             @Override
                             public void run() {
+
                                 try {
                                     if (!obj.get("code").toString().equals("10000"))
                                         Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
@@ -267,6 +306,7 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
 
                                         LogUtils.v("before_set_image" + imagesStr.size() + "");
                                         viewPager.setAdapter(new ImageAdapter(imagesStr));
+                                        kProgressHUD.dismiss();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -322,27 +362,79 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
         LogUtils.v("Fragment onTouch start");
         return gestureDetector.onTouchEvent(event);
     }
+//
+//    /**
+//     * 下拉刷新
+//     * @param view
+//     */
+//    @Override
+//    public void onHeaderRefresh(pullrefresh_view view) {
+//
+//        mPullToRefreshView.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                Date date = new Date();
+//                DateFormat format = new SimpleDateFormat("MM-dd HH:mm");
+//                String time = format.format(date);
+//                mPullToRefreshView.onHeaderRefreshComplete("上次更新于: " + time);
+//
+//                //刷新事件
+//                getIndexImage();
+//                getCompanyList();
+//
+//            }
+//        }, 1000);
+//
+//
+//    }
 
-    /**
-     * 下拉刷新
-     * @param view
-     */
+//    上拉加载下拉刷新
     @Override
-    public void onHeaderRefresh(pullrefresh_view view) {
+    public boolean isPullRefreshEnable() {
+        return true;
+    }
 
-        mPullToRefreshView.postDelayed(new Runnable() {
+    @Override
+    public boolean isPullLoadEnable() {
+        return loadMoreEnable;
+    }
 
+    @Override
+    public void onRefresh() {
+        LogUtils.v("onRefresh---顶部下拉刷新");
+        refreshLayout.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Date date = new Date();
-                DateFormat format=new SimpleDateFormat("MM-dd HH:mm");
-                String time=format.format(date);
-                mPullToRefreshView.onHeaderRefreshComplete("上次更新于: "+time);
+                refreshLayout.finishPullRefresh();
+
+                isload = false;
+                currentPage = 1;
+                getIndexImage();
+                getCompanyList();
             }
         }, 1000);
-
-
     }
+
+    private void onLoad() {
+        company_list.stopRefresh();
+        company_list.stopLoadMore();
+        company_list.setRefreshTime("刚刚");
+    }
+    @Override
+    public void onLoadMore() {
+        LogUtils.v("onLoadMore -----底部加载");
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                currentPage++;
+                LogUtils.v(currentPage + "");
+                isload = true;
+                getCompanyList();
+                onLoad();
+            }
+        }, 1000);
+    }
+
     //图片轮播
     private static class ImageHandler extends Handler {
         /**
@@ -462,7 +554,13 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
             return imageView;
         }
     }
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        currentPage = 1;
+        isload = false;
+        getCompanyList();
+    }
 }
 
 
