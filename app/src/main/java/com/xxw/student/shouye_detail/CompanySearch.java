@@ -27,6 +27,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 import com.xxw.student.view.search_history.MyListView;
 import com.xxw.student.view.search_history.RecordSQLiteOpenHelper;
 import com.xxw.student.view.search_history.RecordSQLiteOpenHelper2;
@@ -163,7 +164,11 @@ public class CompanySearch extends Activity{
                             public void run() {
                                 try {
                                     if (!obj.get("code").toString().equals("10000")) {
-                                        Toast.makeText(CompanySearch.this, message, Toast.LENGTH_SHORT).show();
+                                        new MaterialDialog(CompanySearch.this)
+                                                .setTitle("警告")
+                                                .autodismiss(2000)
+                                                .setMessage(message)
+                                                .show();
                                         noneWord.setVisibility(View.VISIBLE);
                                         noneWord.setText("无查询结果");
                                         company_search.setVisibility(View.GONE);

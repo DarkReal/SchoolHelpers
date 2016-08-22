@@ -28,6 +28,7 @@ import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
 import com.xxw.student.view.DrawableCenterTextView;
+import com.xxw.student.view.MaterialDialog;
 import com.xxw.student.view.My_Toast;
 
 import org.json.JSONException;
@@ -226,7 +227,11 @@ public class job_detail extends Activity implements View.OnTouchListener,View.On
 							public void run() {
 								try {
 									if (!obj.get("code").toString().equals("10000"))
-										Toast.makeText(job_detail.this, message, Toast.LENGTH_SHORT).show();
+										new MaterialDialog(job_detail.this)
+												.setTitle("警告")
+												.autodismiss(2000)
+												.setMessage(message)
+												.show();
 									else {
 										if(option.equals("sure")){
 											collect.setText("已收藏");
@@ -273,8 +278,12 @@ public class job_detail extends Activity implements View.OnTouchListener,View.On
 							@Override
 							public void run() {
 								try {
-									if (obj.get("code").toString().equals("-1"))
-										Toast.makeText(job_detail.this, message, Toast.LENGTH_SHORT).show();
+									if (!obj.get("code").toString().equals("10000"))
+										new MaterialDialog(job_detail.this)
+												.setTitle("警告")
+												.autodismiss(2000)
+												.setMessage(message)
+												.show();
 									else {
 										Toast.makeText(job_detail.this, message, Toast.LENGTH_SHORT).show();
 										JSONObject json = obj.getJSONObject("object");

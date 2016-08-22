@@ -18,6 +18,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 import com.xxw.student.view.loading.KProgressHUD;
 import com.xxw.student.view.pullrefreshAndLoad.XListView;
 
@@ -79,7 +80,11 @@ public class company_detail_job extends Fragment{
                             public void run() {
                                 try {
                                     if (!obj.get("code").toString().equals("10000"))
-                                        Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+                                        new MaterialDialog(view.getContext())
+                                            .setTitle("警告")
+                                            .autodismiss(2000)
+                                            .setMessage(message)
+                                            .show();
                                     else {
                                         //更新帖子列表显示内容
                                         //Toast.makeText(company_detail.this, message, Toast.LENGTH_SHORT).show();
