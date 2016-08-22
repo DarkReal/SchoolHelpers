@@ -2,7 +2,6 @@ package com.xxw.student.fragment.group;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -17,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lidroid.xutils.BitmapUtils;
-import com.xxw.student.Adapter.ResumeAdapter_comcircle;
+import com.xxw.student.Adapter.CustomAdapter_comcircle;
 import com.xxw.student.LoginActivity;
 import com.xxw.student.MainActivity;
 import com.xxw.student.R;
@@ -33,10 +32,7 @@ import com.xxw.student.view.sweetdialog.SweetAlertDialog;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.lang.reflect.Array;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,10 +60,10 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
     private ImageView touxiang,group_like_pic;
     private BitmapUtils bitmapUtils;
     private EditText comment_edit;
-    private ResumeAdapter_comcircle resumeAdapter_comcircle;
+    private CustomAdapter_comcircle customAdapter_comcircle;
     private String isAdmire;//这个帖子是否已经点过赞了
     private String currToid;//回复的评论的id
-    private KProgressHUD kProgressHUD;
+    private KProgressHUD kProgressHUD;//刷新控件
 
 
 
@@ -318,7 +314,7 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
                                         //更新帖子列表显示内容
                                         Toast.makeText(group_detail.this, message, Toast.LENGTH_SHORT).show();
                                         getPinglunList();
-                                        resumeAdapter_comcircle.notifyDataSetChanged();
+                                        customAdapter_comcircle.notifyDataSetChanged();
                                         currToid = "";//发布完了之后要清空
                                     }
                                 } catch (JSONException e) {
@@ -407,9 +403,9 @@ public class group_detail extends Activity implements View.OnClickListener,Gestu
             }
             dataList.add(group_map);
         }
-        resumeAdapter_comcircle=new ResumeAdapter_comcircle(this,group_detail.this,dataList, R.layout.group_comment_list, new String[] {"comment_username","comment_time","comment_text","eachid"},
+        customAdapter_comcircle =new CustomAdapter_comcircle(this,group_detail.this,dataList, R.layout.group_comment_list, new String[] {"comment_username","comment_time","comment_text","eachid"},
                 new int[] {R.id.comment_username, R.id.comment_time, R.id.comment_context,R.id.eachid});
-        group_list.setAdapter(resumeAdapter_comcircle);
+        group_list.setAdapter(customAdapter_comcircle);
         group_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
