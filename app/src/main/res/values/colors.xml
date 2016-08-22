@@ -52,4 +52,12 @@
 
     <color name="kprogresshud_default_color">#b1000000</color>
     <color name="kprogresshud_grey_color">#449E9E9E</color>
+
+    <!--弹出指定框的颜色-->
+    <color name="card_background">#ffffff</color>
+    <color name="card_shadow">#10000000</color>
+    <color name="lite_green">#ff36ab60</color>
+    <color name="window_background">#00000000</color>
+    <color name="black_de">#DE000000</color>
+
 </resources>
