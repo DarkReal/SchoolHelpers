@@ -30,6 +30,7 @@ import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.ValidateHelper;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.loading.KProgressHUD;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,10 +51,14 @@ public class wodejianliFragment extends BaseFragment implements View.OnClickList
     public static JSONArray listEdu,listExperience,listRewarded,listSkill,listJob;
     private TextView username,gender_age_education,phone_email;
     private ListView jybj_list,qwgz_list,jnjj_list,gzjl_list,hjjl_list;
-
+    private KProgressHUD kProgressHUD;
 
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState){
         rootView = inflater.inflate(R.layout.wode_content_wodejianli,container,false);
+        //初始化加载控件
+        kProgressHUD = new KProgressHUD(rootView.getContext());
+        kProgressHUD.setAnimationSpeed(2);
+        kProgressHUD.setDimAmount(0.5f);
         init();
         getJianli();
         return rootView;
@@ -136,7 +141,6 @@ public class wodejianliFragment extends BaseFragment implements View.OnClickList
             }else if(arr1.size()==1){
                 txt1 =arr1.get(0);
             }
-
             if(arr2.size()>1) {
                 txt2 = arr2.get(0);
                 for (int i = 1; i <= arr2.size() - 1; i++) {
@@ -156,6 +160,7 @@ public class wodejianliFragment extends BaseFragment implements View.OnClickList
     //加载简历所有的内容
 
     public void getJianli() {
+        kProgressHUD.show();
         map = new HashMap<String,String>();
         map.put("token", MainActivity.token);
         String url = Constant.getUrl()+"app/user/loadResume.htmls";
@@ -279,6 +284,7 @@ public class wodejianliFragment extends BaseFragment implements View.OnClickList
             e.printStackTrace();
 
         }
+        kProgressHUD.dismiss();
     }
 
     @Override
