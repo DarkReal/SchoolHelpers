@@ -50,6 +50,7 @@ public class gerenziliaoFragment extends BaseFragment implements View.OnClickLis
     private String TAG = "--------gerenziliaoFragment--------";
     private String url = Constant.getUrl() + "app/user/updateUserInfo.htmls";
 
+
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState){
         rootView = inflater.inflate(R.layout.wode_content_gerenziliao,container,false);
 
