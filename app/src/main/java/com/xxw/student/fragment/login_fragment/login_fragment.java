@@ -15,6 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -27,6 +28,7 @@ import com.xxw.student.utils.Digests;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,10 +68,13 @@ public class login_fragment extends Fragment {
         init();
         sharedPreference = view.getContext().getSharedPreferences("userInfo", Context.MODE_PRIVATE);
         login_right = (Button) view.findViewById(R.id.login_right);
+        //单击登录之后软键盘消失
         login_right.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                //控制软键盘消失
+                InputMethodManager imm =(InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
                 ToastText = "";
                 check();
                 if (!ToastText.equals("")) {
@@ -88,7 +93,6 @@ public class login_fragment extends Fragment {
 //                    获取经纬度
 //                  map.put("type", "0");
 //                  map.put("param", localaddress);
-
                     //获取登录
                     map.put("phone",phonestr);
                     map.put("password",passstr);
@@ -97,21 +101,16 @@ public class login_fragment extends Fragment {
                     String url = Constant.getUrl() + "app/user/login.htmls";
 
                     try {
-
 //                        HttpClientUtil ht = new HttpClientUtil();
 //                        ht.postRequest(url, map);
 
                             HttpThread ht = new HttpThread(url,map){
-
-
                             @Override
                             public void getObj(final JSONObject obj){
                                 try {
                                 if (obj != null) {
                                     final String message;
-
-                                        message = obj.get("message").toString();
-
+                                    message = obj.get("message").toString();
                                     LogUtils.v("-------jsonstr------" + obj.toString());
                                     LogUtils.v("message: " + obj.get("message").toString());
 
@@ -120,7 +119,11 @@ public class login_fragment extends Fragment {
                                         public void run() {
                                             try {
                                                 if (!obj.get("code").toString().equals("10000")) {
-                                                    Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+                                                    new MaterialDialog(view.getContext())
+                                                            .setTitle("警告")
+                                                            .autodismiss(2000)
+                                                            .setMessage(message)
+                                                            .show();
                                                 }
                                                 else {
                                                     JSONObject json = obj.getJSONObject("object");
@@ -145,7 +148,6 @@ public class login_fragment extends Fragment {
                                                         }
 
                                                     }, 1000);
-
                                                 }
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
@@ -157,7 +159,6 @@ public class login_fragment extends Fragment {
                                     e.printStackTrace();
                                 }
                             }
-
                         };
                         ht.start();
 
@@ -174,15 +175,17 @@ public class login_fragment extends Fragment {
     //根据经纬度取得城市
     private void getCity() {
         LogUtils.v("getCity");
-        map.put("type", "0");
-        map.put("param", localaddress);
+        HashMap<String,String> hashMap = new HashMap<String,String>();
 
-        LogUtils.v(map.values().toString());
+        hashMap.put("type", "0");
+        hashMap.put("param", localaddress);
+
+        LogUtils.v(hashMap.values().toString());
         String url = Constant.getUrl() + "common/getAddress.htmls";
 
         try {
 
-            HttpThread ht = new HttpThread(url,map){
+            HttpThread ht = new HttpThread(url,hashMap){
                 @Override
                 public void getObj(final JSONObject obj) throws JSONException {
 
@@ -198,7 +201,11 @@ public class login_fragment extends Fragment {
                             public void run() {
                                 try {
                                     if (!obj.get("code").toString().equals("10002")) {
-                                        Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+                                        new MaterialDialog(view.getContext())
+                                                .setTitle("警告")
+                                                .autodismiss(2000)
+                                                .setMessage(message)
+                                                .show();
                                     } else {
                                         final JSONObject json = (JSONObject) obj.get("object");
                                         MainActivity.city = json.get("region").toString();
