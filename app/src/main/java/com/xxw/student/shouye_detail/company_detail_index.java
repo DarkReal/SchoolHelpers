@@ -2,6 +2,7 @@ package com.xxw.student.shouye_detail;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import com.lidroid.xutils.BitmapUtils;
 import com.xxw.student.Adapter.CustomAdapter_comcom;
+import com.xxw.student.LoginActivity;
 import com.xxw.student.MainActivity;
 import com.xxw.student.R;
 import com.xxw.student.utils.Constant;
@@ -31,6 +33,7 @@ import com.xxw.student.utils.getHandler;
 import com.xxw.student.view.MaterialDialog;
 import com.xxw.student.view.loading.KProgressHUD;
 import com.xxw.student.view.pullrefreshAndLoad.XListView;
+import com.xxw.student.view.sweetdialog.SweetAlertDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -80,7 +83,7 @@ public class company_detail_index extends Fragment implements View.OnClickListen
         minflater = inflater;
         mcontainer = container;
         view = inflater.inflate(R.layout.company_detail_index,container,false);
-
+        Constant.isActivity();//检查登录状态
         //初始化加载控件
         kProgressHUD = new KProgressHUD(view.getContext());
         kProgressHUD.setAnimationSpeed(2);
@@ -154,6 +157,7 @@ public class company_detail_index extends Fragment implements View.OnClickListen
     }
 
     private void getPinlunlist() {
+
         kProgressHUD.show();
         String url= Constant.getUrl()+"app/company/getComCom.htmls";
         HashMap<String,String> map = new HashMap<String,String>();
@@ -184,7 +188,7 @@ public class company_detail_index extends Fragment implements View.OnClickListen
                                                 .show();
                                     else {
                                         //更新帖子列表显示内容
-                                        Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
                                          ja = obj.getJSONArray("object");
                                         LogUtils.v("ja.length"+ja.length());
                                         //填充评论列表
@@ -266,6 +270,24 @@ public class company_detail_index extends Fragment implements View.OnClickListen
     }
     //发送评论
     private void sendPinlun() {
+        if(!Constant.isActivitied){
+            new SweetAlertDialog(view.getContext(), SweetAlertDialog.ERROR_TYPE)
+                    .setTitleText("未登录")
+                    .setContentText("未登录的状态下不能进行评论等相关操作，请重新登录!")
+                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sDialog) {
+                            //转回登录页面
+                            Intent intent = new Intent();
+                            intent.setClass(view.getContext(), LoginActivity.class);
+                            //保存登录状态
+                            startActivity(intent);
+                            getActivity().finish();
+                            MainActivity.emptyAll();
+                        }
+                    })
+                    .show();
+        }
         //获取EditText中的内容
         LogUtils.v(comment_edit.getText().toString());
         if(comment_edit.getText().toString()!=""){
@@ -295,7 +317,12 @@ public class company_detail_index extends Fragment implements View.OnClickListen
                                                     .show();
                                         else {
                                             //更新
-                                            Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+                                            new MaterialDialog(view.getContext())
+                                                    .setTitle("提示")
+                                                    .autodismiss(1000)
+                                                    .setMessage(message)
+                                                    .show();
+
                                             //评论成功
                                             getPinlunlist();
                                             fillCommentList();

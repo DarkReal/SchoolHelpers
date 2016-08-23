@@ -2,24 +2,19 @@ package com.xxw.student.shouye_detail;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.job.JobInfo;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.CancellationSignal;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.lidroid.xutils.BitmapUtils;
+import com.xxw.student.LoginActivity;
 import com.xxw.student.MainActivity;
 import com.xxw.student.R;
 import com.xxw.student.utils.Constant;
@@ -30,11 +25,11 @@ import com.xxw.student.utils.getHandler;
 import com.xxw.student.view.DrawableCenterTextView;
 import com.xxw.student.view.MaterialDialog;
 import com.xxw.student.view.My_Toast;
+import com.xxw.student.view.sweetdialog.SweetAlertDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.HashMap;
 
 
@@ -73,6 +68,7 @@ public class job_detail extends Activity implements View.OnTouchListener,View.On
 		bitmapUtils = new BitmapUtils(job_detail.this);
 
 
+
 		initData();
 		getjob();
 	}
@@ -102,7 +98,7 @@ public class job_detail extends Activity implements View.OnTouchListener,View.On
 
 		positionDescs = (TextView) findViewById(R.id.positionDesc);
 		workRequireds = (TextView) findViewById(R.id.workRequired);
-
+		Constant.isActivity();//检测登录状态
 	}
 
 	@Override
@@ -137,7 +133,13 @@ public class job_detail extends Activity implements View.OnTouchListener,View.On
 	}
 	//投递简历
 	private void upResume() {
-
+		if(!Constant.isActivitied||MainActivity.token==""){
+			new SweetAlertDialog(job_detail.this, SweetAlertDialog.ERROR_TYPE)
+					.setTitleText("未登录")
+					.setContentText("未登录的状态下不能投递简历，请重新登录!")
+					.autodismiss(2000)
+					.show();
+		}
 		HashMap<String,String> map = new HashMap<String,String>();
 		map.put("token", MainActivity.token);
 		map.put("recruitId", job_ids);
@@ -156,35 +158,61 @@ public class job_detail extends Activity implements View.OnTouchListener,View.On
 							public void run() {
 								try {
 									if(!obj.get("code").toString().equals("10000")){
-										Toast.makeText(job_detail.this, message, Toast.LENGTH_SHORT).show();
+										new MaterialDialog(job_detail.this)
+												.setTitle("警告")
+												.autodismiss(2000)
+												.setMessage(message)
+												.show();
 										if (obj.get("code").toString().equals("10004")||obj.get("code").toString().equals("10005")){//还没有创建过简历
-											LayoutInflater inflater = LayoutInflater.from(job_detail.this);
-											View view = inflater.inflate(R.layout.custom_alertdialog, null);
-											AlertDialog.Builder builder = new AlertDialog.Builder(job_detail.this);
-											alertDialog = builder.create();
-											alertDialog.show();
-											alertDialog.getWindow().setContentView(view);
-											alertDialog.getWindow().setLayout(400, 200);
-											TextView cancel = (TextView) view.findViewById(R.id.dialog_cancel);
-											TextView submit = (TextView) view.findViewById(R.id.dialog_submit);
-
-											cancel.setOnClickListener(new View.OnClickListener() {
-												@Override
-												public void onClick(View view) {
-													alertDialog.cancel();
-												}
-											});
-											//确认以后跳转页面去填写简历
-											submit.setOnClickListener(new View.OnClickListener() {
-												@Override
-												public void onClick(View view) {
-													Intent intent = new Intent();
-													intent.setClass(job_detail.this,MainActivity.class);
-													intent.putExtra("page","3-2");
-													startActivity(intent);
-													finish();
-												}
-											});
+											//没有简历的情况下
+//											LayoutInflater inflater = LayoutInflater.from(job_detail.this);
+//											View view = inflater.inflate(R.layout.custom_alertdialog, null);
+//											AlertDialog.Builder builder = new AlertDialog.Builder(job_detail.this);
+//											alertDialog = builder.create();
+//											alertDialog.show();
+//											alertDialog.getWindow().setContentView(view);
+//											alertDialog.getWindow().setLayout(400, 200);
+//											TextView cancel = (TextView) view.findViewById(R.id.dialog_cancel);
+//											TextView submit = (TextView) view.findViewById(R.id.dialog_submit);
+//
+//											cancel.setOnClickListener(new View.OnClickListener() {
+//												@Override
+//												public void onClick(View view) {
+//													alertDialog.cancel();
+//												}
+//											});
+//											//确认以后跳转页面去填写简历
+//											submit.setOnClickListener(new View.OnClickListener() {
+//												@Override
+//												public void onClick(View view) {
+//													Intent intent = new Intent();
+//													intent.setClass(job_detail.this,MainActivity.class);
+//													intent.putExtra("page","3-2");
+//													startActivity(intent);
+//													finish();
+//												}
+//											});
+											new SweetAlertDialog(job_detail.this, SweetAlertDialog.ERROR_TYPE)
+													.setTitleText("警告")
+													.setContentText("您没有创建过简历，请前往简历填写")
+													.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+														@Override
+														public void onClick(SweetAlertDialog sDialog) {
+															//转回登录页面
+															Intent intent = new Intent();
+															intent.setClass(job_detail.this,MainActivity.class);
+															intent.putExtra("page","3-2");
+															startActivity(intent);
+															finish();
+														}
+													})
+													.setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+														@Override
+														public void onClick(SweetAlertDialog sweetAlertDialog) {
+															sweetAlertDialog.dismiss();
+														}
+													})
+													.show();
 										}
 									}
 									else {
@@ -208,6 +236,13 @@ public class job_detail extends Activity implements View.OnTouchListener,View.On
 
 	//收藏职位
 	private void collect(final String option) {
+		if(!Constant.isActivitied){
+			new SweetAlertDialog(job_detail.this, SweetAlertDialog.ERROR_TYPE)
+					.setTitleText("未登录")
+					.setContentText("未登录的状态下不能收藏职位，请重新登录!")
+					.autodismiss(2000)
+					.show();
+		}
 		HashMap<String,String> map = new HashMap<String,String>();
 		map.put("token", MainActivity.token);
 		map.put("recruitId", job_ids);
@@ -285,7 +320,6 @@ public class job_detail extends Activity implements View.OnTouchListener,View.On
 												.setMessage(message)
 												.show();
 									else {
-										Toast.makeText(job_detail.this, message, Toast.LENGTH_SHORT).show();
 										JSONObject json = obj.getJSONObject("object");
 										JSONObject jsons = json.getJSONObject("recruit");
 										flag = json.getString("flag");
