@@ -3,6 +3,7 @@ package com.xxw.student.Adapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 import com.xxw.student.view.framework.picker.DatePicker;
 import com.xxw.student.view.framework.picker.OptionPicker;
 
@@ -61,7 +63,7 @@ public class ResumeAdapter_jybj extends BaseAdapter {
     private static View mConvertView;
     private static boolean needtoshow = false;//默认不展示
     private Message msg;
-
+    private MaterialDialog materialDialog;
 
     public ResumeAdapter_jybj(Context context, Activity activity, List<HashMap<String, String>> list,
                               int layoutID, String flag[], int ItemIDs[]) {
@@ -72,21 +74,18 @@ public class ResumeAdapter_jybj extends BaseAdapter {
         this.ItemIDs = ItemIDs;
         this.activity = activity;
         this.mcontext = context;
-
+        this.materialDialog = new MaterialDialog(mcontext);
     }
     @Override
     public int getCount() {
-        // TODO Auto-generated method stub
         return list.size();
     }
     @Override
     public Object getItem(int arg0) {
-        // TODO Auto-generated method stub
         return arg0;
     }
     @Override
     public long getItemId(int arg0) {
-        // TODO Auto-generated method stub
         return arg0;
     }
 
@@ -140,7 +139,7 @@ public class ResumeAdapter_jybj extends BaseAdapter {
                 optionPicker.setOnOptionPickListener(new OptionPicker.OnOptionPickListener() {
                     @Override
                     public void onOptionPicked(int position, String option) {
-                        Toast.makeText(mcontext, Constant.xueli_list.get(position) + "in_ResumeAdpater", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(mcontext, Constant.xueli_list.get(position) + "in_ResumeAdpater", Toast.LENGTH_SHORT).show();
                         TextView textView = finalHolder.education;
                         if(!finalHolder.education.getText().toString().equals(Constant.xueli_list.get(position).toString())){
                             LogUtils.v("原值：" + finalHolder.education.getText().toString() + "修改后的值" + Constant.xueli_list.get(position));
@@ -165,7 +164,7 @@ public class ResumeAdapter_jybj extends BaseAdapter {
                 datePicker.setOnDatePickListener(new DatePicker.OnYearMonthPickListener() {
                     @Override
                     public void onDatePicked(String year, String month) {
-                        Toast.makeText(mcontext, year + "-" + month, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(mcontext, year + "-" + month, Toast.LENGTH_SHORT).show();
                         if (!finalHolder.timeBegin.getText().toString().equals(year + "-" + month)) {
                             LogUtils.v("原值：" + finalHolder.timeBegin.getText().toString() + "修改后的值" + year + "-" + month);
                             finalHolder.timeBegin.setText(year + "-" + month);
@@ -189,7 +188,7 @@ public class ResumeAdapter_jybj extends BaseAdapter {
                 datePicker.setOnDatePickListener(new DatePicker.OnYearMonthPickListener() {
                     @Override
                     public void onDatePicked(String year, String month) {
-                        Toast.makeText(mcontext, year + "-" + month, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(mcontext, year + "-" + month, Toast.LENGTH_SHORT).show();
                         if (!finalHolder.timeEnd.getText().toString().equals(year + "-" + month)) {
                             LogUtils.v("原值：" + finalHolder.timeEnd.getText().toString() + "修改后的值" + year + "-" + month);
                             finalHolder.timeEnd.setText(year + "-" + month);
@@ -207,93 +206,83 @@ public class ResumeAdapter_jybj extends BaseAdapter {
         holder.school.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LayoutInflater inflater = LayoutInflater.from(mcontext);
-                View viewinflator = inflater.inflate(R.layout.custom_alertdialog_edit, null);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(mcontext);
-                final AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-
-                TextView tv = (TextView) viewinflator.findViewById(R.id.dialog_title);
-                final EditText et = (EditText) viewinflator.findViewById(R.id.content);
-                TextView submit = (TextView) viewinflator.findViewById(R.id.dialog_submit);
-                TextView cancel = (TextView) viewinflator.findViewById(R.id.dialog_cancel);
-                et.setText(finalHolder.school.getText().toString());
-
-                //提交内容,更改对应的文本框
-                submit.setOnClickListener(new View.OnClickListener() {
+                final EditText contentView = new EditText(mcontext);
+                contentView.setText("填写学校名称");
+                contentView.setTextColor(Color.GRAY);
+                contentView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
-                    public void onClick(View v) {
-                        if (!finalHolder.school.getText().toString().equals(et.getText().toString())) {
-                            LogUtils.v("原值：" + finalHolder.school.getText().toString() + "修改后的值" + et.getText().toString());
-                            finalHolder.school.setText(et.getText().toString());
-                            currentItem = finalHolder.eachid.getText().toString();
-                            LogUtils.v(currentItem + "school");
-                            currentItemInt = getNumber(currentItem);
-                            list.get(currentItemInt).put("school", et.getText().toString());
-                            changed(-1);
+                    public void onFocusChange(View view, boolean b) {
+                        if(b){
+                            contentView.setText("");
                         }
-                        alertDialog.cancel();
                     }
                 });
-                cancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        alertDialog.cancel();
-                    }
-                });
-
-                tv.setText("学校名称");
-                alertDialog.getWindow().setContentView(viewinflator);
-                alertDialog.getWindow().setLayout(400, 220);
-
+                materialDialog.setContentView(contentView);
+                materialDialog.setTitle("学校名称")
+                        .setPositiveButton("确定", new View.OnClickListener() {
+                            //单击确认之后发送请求
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                                if (!finalHolder.school.getText().toString().equals(contentView.getText().toString())) {
+                                    LogUtils.v("原值：" + finalHolder.school.getText().toString() + "修改后的值" + contentView.getText().toString());
+                                    finalHolder.school.setText(contentView.getText().toString());
+                                    currentItem = finalHolder.eachid.getText().toString();
+                                    LogUtils.v(currentItem + "school");
+                                    currentItemInt = getNumber(currentItem);
+                                    list.get(currentItemInt).put("school", contentView.getText().toString());
+                                    changed(-1);
+                                }
+                            }
+                        })
+                        .setNegativeButton("取消", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                            }
+                        }).show();
             }
         });
 
         holder.majorIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LayoutInflater inflater = LayoutInflater.from(mcontext);
-                View viewinflator = inflater.inflate(R.layout.custom_alertdialog_edit, null);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(mcontext);
-                final AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-
-                TextView tv = (TextView) viewinflator.findViewById(R.id.dialog_title);
-                final EditText et = (EditText) viewinflator.findViewById(R.id.content);
-                TextView submit = (TextView) viewinflator.findViewById(R.id.dialog_submit);
-                TextView cancel = (TextView) viewinflator.findViewById(R.id.dialog_cancel);
-                et.setText(finalHolder.majorIn.getText().toString());
-
-                //提交内容,更改对应的文本框
-                submit.setOnClickListener(new View.OnClickListener() {
+                final EditText contentView = new EditText(mcontext);
+                contentView.setText("填写专业名称");
+                contentView.setTextColor(Color.GRAY);
+                contentView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
-                    public void onClick(View v) {
-                        if (!finalHolder.majorIn.getText().toString().equals(et.getText().toString())) {
-                            //如果修改了值，就做一个标记
-                            LogUtils.v("原值：" + finalHolder.majorIn.getText().toString() + "修改后的值" + et.getText().toString());
-                            finalHolder.majorIn.setText(et.getText().toString());
-                            currentItem = finalHolder.eachid.getText().toString();
-                            currentItemInt = getNumber(currentItem);
-                            list.get(currentItemInt).put("majorIn", et.getText().toString());
-                            //发送消息
-                            changed(-1);
+                    public void onFocusChange(View view, boolean b) {
+                        if (b) {
+                            contentView.setText("");
                         }
-                        alertDialog.cancel();
                     }
                 });
-                cancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        alertDialog.cancel();
-                    }
-                });
-
-                tv.setText("专业名称");
-                alertDialog.getWindow().setContentView(viewinflator);
-                alertDialog.getWindow().setLayout(400, 220);
-
+                materialDialog.setContentView(contentView);
+                materialDialog.setTitle("学校名称")
+                        .setPositiveButton("确定", new View.OnClickListener() {
+                            //单击确认之后发送请求
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                                if (!finalHolder.majorIn.getText().toString().equals(contentView.getText().toString())) {
+                                    //如果修改了值，就做一个标记
+                                    LogUtils.v("原值：" + finalHolder.majorIn.getText().toString() + "修改后的值" + contentView.getText().toString());
+                                    finalHolder.majorIn.setText(contentView.getText().toString());
+                                    currentItem = finalHolder.eachid.getText().toString();
+                                    currentItemInt = getNumber(currentItem);
+                                    list.get(currentItemInt).put("majorIn", contentView.getText().toString());
+                                    //发送消息
+                                    changed(-1);
+                                }
+                            }
+                        })
+                        .setNegativeButton("取消", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                            }
+                        }).show();
             }
         });
 
@@ -363,7 +352,12 @@ public class ResumeAdapter_jybj extends BaseAdapter {
                         getHandler.mHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(mcontext, message, Toast.LENGTH_SHORT).show();
+
+                                new MaterialDialog(mcontext)
+                                        .setTitle("警告")
+                                        .autodismiss(2000)
+                                        .setMessage(message)
+                                        .show();
                                 //更改文字提示
                                 //更新list
                                 list.remove(currentItem);
