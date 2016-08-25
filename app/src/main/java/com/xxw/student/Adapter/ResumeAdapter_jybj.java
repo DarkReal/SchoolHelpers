@@ -207,7 +207,7 @@ public class ResumeAdapter_jybj extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 final EditText contentView = new EditText(mcontext);
-                contentView.setText("填写学校名称");
+                contentView.setText(finalHolder.school.getText().toString());
                 contentView.setTextColor(Color.GRAY);
                 contentView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
@@ -248,7 +248,7 @@ public class ResumeAdapter_jybj extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 final EditText contentView = new EditText(mcontext);
-                contentView.setText("填写专业名称");
+                contentView.setText(finalHolder.majorIn.getText().toString());
                 contentView.setTextColor(Color.GRAY);
                 contentView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
@@ -259,7 +259,7 @@ public class ResumeAdapter_jybj extends BaseAdapter {
                     }
                 });
                 materialDialog.setContentView(contentView);
-                materialDialog.setTitle("学校名称")
+                materialDialog.setTitle("专业名称")
                         .setPositiveButton("确定", new View.OnClickListener() {
                             //单击确认之后发送请求
                             @Override

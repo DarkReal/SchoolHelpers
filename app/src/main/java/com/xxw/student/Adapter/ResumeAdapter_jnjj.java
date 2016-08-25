@@ -3,6 +3,7 @@ package com.xxw.student.Adapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 import com.xxw.student.view.RatingBarView;
 import com.xxw.student.view.framework.picker.DatePicker;
 import com.xxw.student.view.framework.picker.OptionPicker;
@@ -62,6 +64,7 @@ public class ResumeAdapter_jnjj extends BaseAdapter {
     private static View mConvertView;
     private static boolean needtoshow = false;//默认不展示
     public static int storagecount=0;
+    private MaterialDialog materialDialog;
 
     public ResumeAdapter_jnjj(Context context, Activity activity, List<HashMap<String, String>> list,
                               int layoutID, String flag[], int ItemIDs[]) {
@@ -73,20 +76,18 @@ public class ResumeAdapter_jnjj extends BaseAdapter {
         this.ItemIDs = ItemIDs;
         this.activity = activity;
         this.mcontext = context;
+        this.materialDialog = new MaterialDialog(mcontext);
     }
     @Override
     public int getCount() {
-        // TODO Auto-generated method stub
         return list.size();
     }
     @Override
     public Object getItem(int arg0) {
-        // TODO Auto-generated method stub
         return arg0;
     }
     @Override
     public long getItemId(int arg0) {
-        // TODO Auto-generated method stub
         return arg0;
     }
     @Override
@@ -132,46 +133,41 @@ public class ResumeAdapter_jnjj extends BaseAdapter {
         holder.jnjj_skill.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LayoutInflater inflater = LayoutInflater.from(mcontext);
-                View viewinflator = inflater.inflate(R.layout.custom_alertdialog_edit, null);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(mcontext);
-                final AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-
-                TextView tv = (TextView) viewinflator.findViewById(R.id.dialog_title);
-                final EditText et = (EditText) viewinflator.findViewById(R.id.content);
-                TextView submit = (TextView) viewinflator.findViewById(R.id.dialog_submit);
-                TextView cancel = (TextView) viewinflator.findViewById(R.id.dialog_cancel);
-                et.setText(finalHolder.jnjj_skill.getText().toString());
-
-                //提交内容,更改对应的文本框
-                submit.setOnClickListener(new View.OnClickListener() {
+                final EditText contentView = new EditText(mcontext);
+                contentView.setText(finalHolder.jnjj_skill.getText().toString());
+                contentView.setTextColor(Color.GRAY);
+                contentView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
-                    public void onClick(View v) {
-                        if (!finalHolder.jnjj_skill.getText().toString().equals(et.getText().toString())) {
-                            LogUtils.v("原值：" + finalHolder.jnjj_skill.getText().toString() + "修改后的值" + et.getText().toString());
-                            finalHolder.jnjj_skill.setText(et.getText().toString());
-                            currentItem = finalHolder.eachid.getText().toString();
-                            LogUtils.v(currentItem + "jnjj_skill");
-                            currentItemInt = getNumber(currentItem);
-                            list.get(currentItemInt).put("skillName", et.getText().toString());
-                            changed(-1);
+                    public void onFocusChange(View view, boolean b) {
+                        if (b) {
+                            contentView.setText("");
                         }
-                        alertDialog.cancel();
                     }
                 });
-                cancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        alertDialog.cancel();
-                    }
-                });
-
-                tv.setText("技能名称");
-                alertDialog.getWindow().setContentView(viewinflator);
-                alertDialog.getWindow().setLayout(400, 220);
-
+                materialDialog.setContentView(contentView);
+                materialDialog.setTitle("技能名称")
+                        .setPositiveButton("确定", new View.OnClickListener() {
+                            //单击确认之后发送请求
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                                if (!finalHolder.jnjj_skill.getText().toString().equals(contentView.getText().toString())) {
+                                    LogUtils.v("原值：" + finalHolder.jnjj_skill.getText().toString() + "修改后的值" + contentView.getText().toString());
+                                    finalHolder.jnjj_skill.setText(contentView.getText().toString());
+                                    currentItem = finalHolder.eachid.getText().toString();
+                                    LogUtils.v(currentItem + "jnjj_skill");
+                                    currentItemInt = getNumber(currentItem);
+                                    list.get(currentItemInt).put("skillName", contentView.getText().toString());
+                                    changed(-1);
+                                }
+                            }
+                        })
+                        .setNegativeButton("取消", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                            }
+                        }).show();
             }
         });
         //删除事件
@@ -251,7 +247,11 @@ public class ResumeAdapter_jnjj extends BaseAdapter {
                         getHandler.mHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(mcontext, message, Toast.LENGTH_SHORT).show();
+                                new MaterialDialog(mcontext)
+                                        .setTitle("警告")
+                                        .autodismiss(2000)
+                                        .setMessage(message)
+                                        .show();
                                 //更改文字提示
                                 //更新list
                                 list.remove(currentItem);
