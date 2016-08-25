@@ -20,17 +20,21 @@ import android.widget.Toast;
 
 import com.lidroid.xutils.BitmapUtils;
 import com.xxw.student.Adapter.CustomAdapter_companyList;
+import com.xxw.student.LoginActivity;
 import com.xxw.student.MainActivity;
 import com.xxw.student.R;
 import com.xxw.student.shouye_detail.company_detail;
+import com.xxw.student.utils.Commonhandler;
 import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 import com.xxw.student.view.loading.KProgressHUD;
 import com.xxw.student.view.pullrefreshAndLoad.NsRefreshLayout;
 import com.xxw.student.view.pullrefreshAndLoad.XListView;
 import com.xxw.student.view.pullrefresh_view;
+import com.xxw.student.view.sweetdialog.SweetAlertDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -94,6 +98,17 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
         company_list.setPullLoadEnable(true, false);//可以加载
         company_list.setPullRefreshEnable(false);//不能刷新
         company_list.setXListViewListener(this);
+
+        Commonhandler.comHandler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what){
+                    case 100://更新城市
+                        getCompanyList();
+                }
+            }
+        };
+
 
         //初始化加载控件
         kProgressHUD = new KProgressHUD(view.getContext());
@@ -191,7 +206,10 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
                             public void run() {
                                 try {
                                     if (!obj.get("code").toString().equals("10000"))
-                                        Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+                                        new MaterialDialog(view.getContext()).setTitle("警告")
+                                                .autodismiss(2000)
+                                                .setMessage(message)
+                                                .show();
                                     else {
                                         companyListja = (JSONArray) obj.get("object");
                                         filltheList();//填充companyList列表
@@ -199,10 +217,8 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-
                             }
                         });
-
                     }
                 }
             };
@@ -290,7 +306,10 @@ public class contentFragment_shouye extends Fragment implements GestureDetector.
 
                                 try {
                                     if (!obj.get("code").toString().equals("10000"))
-                                        Toast.makeText(view.getContext(), message, Toast.LENGTH_SHORT).show();
+                                        new MaterialDialog(view.getContext()).setTitle("警告")
+                                                .autodismiss(2000)
+                                                .setMessage(message)
+                                                .show();
                                     else {
                                         ja = (JSONArray) obj.get("object");
                                         json = (JSONObject) ja.get(0);
