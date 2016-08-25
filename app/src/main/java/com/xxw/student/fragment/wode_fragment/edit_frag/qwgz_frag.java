@@ -2,6 +2,7 @@ package com.xxw.student.fragment.wode_fragment.edit_frag;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,6 +22,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 import com.xxw.student.view.framework.picker.DatePicker;
 import com.xxw.student.view.framework.picker.OptionPicker;
 
@@ -42,8 +44,8 @@ public class qwgz_frag extends Activity implements View.OnClickListener{
     private OptionPicker optionPicker;
     private DatePicker datePicker;
     private HashMap<String,String> mapforhttp;
-
-
+    private String mapid;
+    private MaterialDialog materialDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +63,7 @@ public class qwgz_frag extends Activity implements View.OnClickListener{
                                 save();
                             }
                         });
-
+                        edit_btn.setText("保存");
                         break;
                 }
             }
@@ -133,7 +135,6 @@ public class qwgz_frag extends Activity implements View.OnClickListener{
 
         mapforhttp = new HashMap<String, String>();
 
-        mapforhttp.put("id", "0");
         mapforhttp.put("userId", MainActivity.userid);
         mapforhttp.put("token", MainActivity.token);
         mapforhttp.put("position", "单击编辑");
@@ -158,10 +159,20 @@ public class qwgz_frag extends Activity implements View.OnClickListener{
                         getHandler.mHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(qwgz_frag.this, message, Toast.LENGTH_SHORT).show();
+
+                                new MaterialDialog(qwgz_frag.this)
+                                        .setTitle("警告")
+                                        .autodismiss(2000)
+                                        .setMessage(message)
+                                        .show();
                                 //更改文字提示
                                 //去除单击保存事件，这个时候单击应该变成删除按钮出现
                                 edit_btn.setVisibility(View.GONE);
+                                try {
+                                    mapid = obj.get("object").toString();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                     }
@@ -189,74 +200,74 @@ public class qwgz_frag extends Activity implements View.OnClickListener{
 
             case R.id.qwgz_job:
 
-
-                AlertDialog.Builder builder1 = new AlertDialog.Builder(qwgz_frag.this);
-                final AlertDialog alertDialog1 = builder1.create();
-                alertDialog1.show();
-
-                TextView tv1 = (TextView) viewinflator.findViewById(R.id.dialog_title);
-                final EditText et1 = (EditText) viewinflator.findViewById(R.id.content);
-                TextView submit1 = (TextView) viewinflator.findViewById(R.id.dialog_submit);
-                TextView cancel1 = (TextView) viewinflator.findViewById(R.id.dialog_cancel);
-                et1.setText(qwgz_job.getText().toString());
-
-                //提交内容,更改对应的文本框
-                submit1.setOnClickListener(new View.OnClickListener() {
+                final EditText contentView1 = new EditText(qwgz_frag.this);
+                contentView1.setText(qwgz_job.getText().toString());
+                contentView1.setTextColor(Color.GRAY);
+                contentView1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
-                    public void onClick(View v) {
-                        if (!qwgz_job.getText().toString().equals(et1.getText().toString())) {
-                            Log.v(TAG, "原值：" + qwgz_job.getText().toString() + "修改后的值" + et1.getText().toString());
-                            qwgz_job.setText(et1.getText().toString());
-                            changed(-1);
+                    public void onFocusChange(View view, boolean b) {
+                        if (b) {
+                            contentView1.setText("");
                         }
-                        alertDialog1.cancel();
                     }
                 });
-                cancel1.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        alertDialog1.cancel();
-                    }
-                });
+                materialDialog = new MaterialDialog(qwgz_frag.this);
+                materialDialog.setContentView(contentView1);
+                materialDialog.setTitle("期望工作")
+                        .setPositiveButton("确定", new View.OnClickListener() {
+                            //单击确认之后发送请求
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                                if (!qwgz_job.getText().toString().equals(contentView1.getText().toString())) {
+                                    Log.v(TAG, "原值：" + qwgz_job.getText().toString() + "修改后的值" + contentView1.getText().toString());
+                                    qwgz_job.setText(contentView1.getText().toString());
+                                    changed(-1);
+                                }
+                            }
+                        })
+                        .setNegativeButton("取消", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                            }
+                        }).show();
 
-                tv1.setText("期望工作");
-                alertDialog1.getWindow().setContentView(viewinflator);
-                alertDialog1.getWindow().setLayout(400, 220);
                 break;
             case R.id.qwgz_city:
 
-                AlertDialog.Builder builder2 = new AlertDialog.Builder(qwgz_frag.this);
-                final AlertDialog alertDialog2 = builder2.create();
-                alertDialog2.show();
-
-                TextView tv2 = (TextView) viewinflator.findViewById(R.id.dialog_title);
-                final EditText et2 = (EditText) viewinflator.findViewById(R.id.content);
-                TextView submit2 = (TextView) viewinflator.findViewById(R.id.dialog_submit);
-                TextView cancel2 = (TextView) viewinflator.findViewById(R.id.dialog_cancel);
-                et2.setText(qwgz_city.getText().toString());
-
-                //提交内容,更改对应的文本框
-                submit2.setOnClickListener(new View.OnClickListener() {
+                final EditText contentView2 = new EditText(qwgz_frag.this);
+                contentView2.setText(qwgz_city.getText().toString());
+                contentView2.setTextColor(Color.GRAY);
+                contentView2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
-                    public void onClick(View v) {
-                        if (!qwgz_city.getText().toString().equals(et2.getText().toString())) {
-                            LogUtils.v("原值：" + qwgz_city.getText().toString() + "修改后的值" + et2.getText().toString());
-                            qwgz_city.setText(et2.getText().toString());
-                            changed(-1);
+                    public void onFocusChange(View view, boolean b) {
+                        if (b) {
+                            contentView2.setText("");
                         }
-                        alertDialog2.cancel();
                     }
                 });
-                cancel2.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        alertDialog2.cancel();
-                    }
-                });
-
-                tv2.setText("期望城市");
-                alertDialog2.getWindow().setContentView(viewinflator);
-                alertDialog2.getWindow().setLayout(400, 220);
+                materialDialog = new MaterialDialog(qwgz_frag.this);
+                materialDialog.setContentView(contentView2);
+                materialDialog.setTitle("期望城市")
+                        .setPositiveButton("确定", new View.OnClickListener() {
+                            //单击确认之后发送请求
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                                if (!qwgz_city.getText().toString().equals(contentView2.getText().toString())) {
+                                    LogUtils.v("原值：" + qwgz_city.getText().toString() + "修改后的值" + contentView2.getText().toString());
+                                    qwgz_city.setText(contentView2.getText().toString());
+                                    changed(-1);
+                                }
+                            }
+                        })
+                        .setNegativeButton("取消", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                            }
+                        }).show();
                 break;
             case R.id.qwgz_day_require:
                 Constant.setWorkDatePerWeek();//初始化
@@ -310,39 +321,38 @@ public class qwgz_frag extends Activity implements View.OnClickListener{
                 break;
             case R.id.qw_salarybyday:
 
-
-                AlertDialog.Builder builder3 = new AlertDialog.Builder(qwgz_frag.this);
-                final AlertDialog alertDialog3 = builder3.create();
-                alertDialog3.show();
-
-                TextView tv3 = (TextView) viewinflator.findViewById(R.id.dialog_title);
-                final EditText et3 = (EditText) viewinflator.findViewById(R.id.content);
-                TextView submit3 = (TextView) viewinflator.findViewById(R.id.dialog_submit);
-                TextView cancel3 = (TextView) viewinflator.findViewById(R.id.dialog_cancel);
-                et3.setText(qw_salarybyday.getText().toString());
-
-                //提交内容,更改对应的文本框
-                submit3.setOnClickListener(new View.OnClickListener() {
+                final EditText contentView3 = new EditText(qwgz_frag.this);
+                contentView3.setText(qw_salarybyday.getText().toString());
+                contentView3.setTextColor(Color.GRAY);
+                contentView3.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
-                    public void onClick(View v) {
-                        if (!qw_salarybyday.getText().toString().equals(et3.getText().toString())) {
-                            LogUtils.v("原值：" + qw_salarybyday.getText().toString() + "修改后的值" + et3.getText().toString());
-                            qw_salarybyday.setText(et3.getText().toString());
-                            changed(-1);
+                    public void onFocusChange(View view, boolean b) {
+                        if (b) {
+                            contentView3.setText("");
                         }
-                        alertDialog3.cancel();
                     }
                 });
-                cancel3.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        alertDialog3.cancel();
-                    }
-                });
-
-                tv3.setText("期望城市");
-                alertDialog3.getWindow().setContentView(viewinflator);
-                alertDialog3.getWindow().setLayout(400, 220);
+                materialDialog = new MaterialDialog(qwgz_frag.this);
+                materialDialog.setContentView(contentView3);
+                materialDialog.setTitle("期望日薪")
+                        .setPositiveButton("确定", new View.OnClickListener() {
+                            //单击确认之后发送请求
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                                if (!qw_salarybyday.getText().toString().equals(contentView3.getText().toString())) {
+                                    LogUtils.v("原值：" + qw_salarybyday.getText().toString() + "修改后的值" + contentView3.getText().toString());
+                                    qw_salarybyday.setText(contentView3.getText().toString());
+                                    changed(-1);
+                                }
+                            }
+                        })
+                        .setNegativeButton("取消", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                materialDialog.dismiss();
+                            }
+                        }).show();
                 break;
             case R.id.daogangrq:
                 datePicker = new DatePicker(this, DatePicker.YEAR_MONTH_DAY);
@@ -371,10 +381,8 @@ public class qwgz_frag extends Activity implements View.OnClickListener{
     }
     private void save() {
         //保存数据的http操作
-        mapforhttp = new HashMap<String, String>();
-
-
-            mapforhttp.put("id", "0");
+            mapforhttp = new HashMap<String, String>();
+            mapforhttp.put("id",mapid);
             mapforhttp.put("userId", MainActivity.userid);
             mapforhttp.put("token", MainActivity.token);
             mapforhttp.put("position", qwgz_job.getText().toString().trim());

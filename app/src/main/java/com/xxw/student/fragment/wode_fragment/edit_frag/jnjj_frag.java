@@ -20,6 +20,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,13 +67,18 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
                         add_jnjj.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Toast.makeText(jnjj_frag.this, "有内容未保存，请保存后进行下一步", Toast.LENGTH_SHORT).show();
+                                new MaterialDialog(jnjj_frag.this)
+                                        .setTitle("警告")
+                                        .autodismiss(2000)
+                                        .setMessage("有内容未保存，请保存后进行下一步")
+                                        .show();
                             }
                         });
                         break;
                     case 1://删除完毕
                         jnjj_datalist.remove(resumeAdapterJnjj.getCurrentItemInt());
                         resumeAdapterJnjj.notifyDataSetChanged();//更新视图
+                        edit_btn.setText("编辑");
                         break;
                 }
             }
@@ -131,17 +137,17 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
                 //返回到简历的总页面，
                 finish();
                 overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-
                 break;
             case R.id.add_skill:
                 addjnjj();
                 break;
             case R.id.edit_btn:
+                //隐藏编辑点了之后显示出来的删除按钮
                 if(edit_btn.getText().toString()=="保存"&&resumeAdapterJnjj.isNeedtoshow()){
                     edit_btn.setText("编辑");
                     resumeAdapterJnjj.changeState(false);
                     resumeAdapterJnjj.notifyDataSetChanged();
-                }else{
+                }else{//点了编辑之后出现删除按钮，单击删除某一项
                     edit_btn.setText("保存");
                     resumeAdapterJnjj.changeState(true);
                     resumeAdapterJnjj.notifyDataSetChanged();
@@ -153,6 +159,7 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
     private void addjnjj() {
         HashMap<String,String> map = new HashMap<String,String>();
         //这些都是默认值
+        //添加之前一定要进行判空操作
         if(!checkIsSaved()){
             //如果内容未保存的话
             Toast.makeText(this, "有内容未保存，请保存后进行下一步", Toast.LENGTH_SHORT).show();
@@ -187,7 +194,13 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
 
         });
     }
-    //检查是否有未保存的添加内容  未保存的内容默认id是空的
+
+    /**
+     * 判空操作
+     * @return
+     */
+    //检查是否有未保存的添加内容  未保存的内容默认id是0
+    //只要查出来有一个的id等于0表示，这个是刚添加的并且没有进行保存操作，保存完毕后刷新id显示
     private boolean checkIsSaved() {
         for (int i = 0; i < jnjj_datalist.size(); i++) {
             if (jnjj_datalist.get(i).get("id").toString() == "0") {
@@ -197,6 +210,9 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
         return true;
     }
 
+    /**
+     * 保存操作
+     */
     private void save() {
         //保存数据的http操作
         mapforhttp = new HashMap<String, String>();
@@ -209,11 +225,12 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
             HashMap<String, String> getforMap = resumeAdapterJnjj.getHashMap();
             LogUtils.v("jnjj_获取到的map值"+resumeAdapterJnjj.getHashMap() + "");
 
+            //后台返回的数据
             //如果有id证明是修改，就需要补全id,userid,没哟肚饿话表示是新添加的内容
             if ((getforMap.containsKey("id"))) {
                 //如果有id这个属性
-                mapforhttp.put("id", getforMap.get("id"));
-                mapforhttp.put("userId", MainActivity.userid);
+                    mapforhttp.put("id", getforMap.get("id"));
+                    mapforhttp.put("userId", MainActivity.userid);
             }
 
             mapforhttp.put("token", MainActivity.token);
@@ -235,7 +252,11 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
                             getHandler.mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(jnjj_frag.this, message, Toast.LENGTH_SHORT).show();
+                                    new MaterialDialog(jnjj_frag.this)
+                                            .setTitle("提示")
+                                            .autodismiss(1000)
+                                            .setMessage(message)
+                                            .show();
                                     //更改文字提示
                                     edit_btn.setText("编辑");
                                     //去除单击保存事件，这个时候单击应该变成删除按钮出现
@@ -249,7 +270,11 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
                                     });
                                     resumeAdapterJnjj.storagecount = 0;
                                     resumeAdapterJnjj.changeState(false);
-                                    changeLocalMap(mapforhttp);
+                                    try {
+                                        changeLocalMap(mapforhttp,obj.get("object").toString());
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                     resumeAdapterJnjj.notifyDataSetChanged();//刷新视图
                                 }
                             });
@@ -268,7 +293,7 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
     /**
      * 修改掉之后也更新掉当前页面的map,更新视图
      */
-    private void changeLocalMap(HashMap<String,String> mapforhttp) {
+    private void changeLocalMap(HashMap<String,String> mapforhttp,String newid) {
 
         //遍历教育背景datalist,以id为关键字找到对应的Map然后修改
         for(int i = 0 ;i < jnjj_datalist.size() ; i++){
@@ -280,8 +305,8 @@ public class jnjj_frag extends Activity implements View.OnClickListener{
                 }
             }else{
                 if(jnjj_datalist.get(i).get("id").toString()=="0"){
-                    jnjj_datalist.get(i).put("id","10000");//10000表示已经修改完毕
-                    jnjj_datalist.get(i).put("skillLevel", Constant.skill_list.get(Integer.parseInt(mapforhttp.get("skillLevel").toString())-1));
+                    jnjj_datalist.get(i).put("id",newid);//10000表示已经修改完毕
+                    jnjj_datalist.get(i).put("skillLevel", Constant.skill_list.get(Integer.parseInt(mapforhttp.get("skillLevel").toString()) - 1));
                     jnjj_datalist.get(i).put("skillName", mapforhttp.get("skillName").toString());
                 }
             }

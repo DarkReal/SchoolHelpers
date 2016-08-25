@@ -20,6 +20,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +43,6 @@ public class hjjl_frag extends Activity implements View.OnClickListener{
     private TextView noneWord;
     private TextView edit_btn;
     private HashMap<String,String> mapforhttp;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +65,11 @@ public class hjjl_frag extends Activity implements View.OnClickListener{
                         add_reward.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Toast.makeText(hjjl_frag.this, "有内容未保存，请保存后进行下一步", Toast.LENGTH_SHORT).show();
+                                new MaterialDialog(hjjl_frag.this)
+                                        .setTitle("警告")
+                                        .autodismiss(2000)
+                                        .setMessage("有内容未保存，请保存后进行下一步")
+                                        .show();
                             }
                         });
                         break;
@@ -171,7 +175,7 @@ public class hjjl_frag extends Activity implements View.OnClickListener{
         //如果没有填写，单击添加之后产生一个新的
         if(resumeAdapterHjjl==null){
             resumeAdapterHjjl = new ResumeAdapter_hjjl(this, hjjl_frag.this, hjjl_datalist, R.layout.wode_hjjl_edit_ever, new String[]{"id","rewardedRank", "rewardedTime", "rewardedName"},
-                    new int[]{R.id.jnjj_list_id, R.id.prize_degree, R.id.prize_gettime, R.id.prizeName});
+                    new int[]{R.id.hjjl_list_id, R.id.prize_degree, R.id.prize_gettime, R.id.prizeName});
             hjjl_list.setAdapter(resumeAdapterHjjl);
 
             noneWord.setVisibility(View.GONE);
@@ -244,7 +248,11 @@ public class hjjl_frag extends Activity implements View.OnClickListener{
                             getHandler.mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(hjjl_frag.this, message, Toast.LENGTH_SHORT).show();
+                                    new MaterialDialog(hjjl_frag.this)
+                                            .setTitle("提示")
+                                            .autodismiss(1000)
+                                            .setMessage(message)
+                                            .show();
                                     //更改文字提示
                                     edit_btn.setText("编辑");
                                     //去除单击保存事件，这个时候单击应该变成删除按钮出现
@@ -258,7 +266,11 @@ public class hjjl_frag extends Activity implements View.OnClickListener{
                                     });
 
                                     resumeAdapterHjjl.changeState(false);
-                                    changeLocalMap(mapforhttp);
+                                    try {
+                                        changeLocalMap(mapforhttp,obj.get("object").toString());
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                     resumeAdapterHjjl.notifyDataSetChanged();//刷新视图
                                 }
                             });
@@ -277,7 +289,7 @@ public class hjjl_frag extends Activity implements View.OnClickListener{
     /**
      * 修改掉之后也更新掉当前页面的map,更新视图
      */
-    private void changeLocalMap(HashMap<String,String> mapforhttp) {
+    private void changeLocalMap(HashMap<String,String> mapforhttp,String newid) {
 
         //遍历教育背景datalist,以id为关键字找到对应的Map然后修改
         for(int i = 0 ;i < hjjl_datalist.size() ; i++){
@@ -290,7 +302,7 @@ public class hjjl_frag extends Activity implements View.OnClickListener{
                 }
             }else{
                 if(hjjl_datalist.get(i).get("id").toString()=="0"){
-                    hjjl_datalist.get(i).put("id", "10000");//10000表示已经修改完毕
+                    hjjl_datalist.get(i).put("id", newid);
                     hjjl_datalist.get(i).put("rewardedName", mapforhttp.get("rewardedName").toString());
                     hjjl_datalist.get(i).put("rewardedRank", mapforhttp.get("rewardedRank").toString());
                     hjjl_datalist.get(i).put("rewardedRank", mapforhttp.get("rewardedRank").toString());

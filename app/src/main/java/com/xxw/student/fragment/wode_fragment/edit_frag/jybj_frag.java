@@ -20,6 +20,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,8 +43,6 @@ public class jybj_frag extends Activity implements View.OnClickListener{
     private TextView noneWord;
     private TextView edit_btn;
     private HashMap<String,String> mapforhttp;
-    private String TAG = "jybj_frag";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +66,11 @@ public class jybj_frag extends Activity implements View.OnClickListener{
                         add_jybj.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Toast.makeText(jybj_frag.this, "有内容未保存，请保存后进行下一步", Toast.LENGTH_SHORT).show();
+                                new MaterialDialog(jybj_frag.this)
+                                        .setTitle("警告")
+                                        .autodismiss(2000)
+                                        .setMessage("有内容未保存，请保存后进行下一步")
+                                        .show();
                             }
                         });
                         break;
@@ -134,7 +137,6 @@ public class jybj_frag extends Activity implements View.OnClickListener{
                 //返回到简历的总页面，
                 finish();
                 overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-
                 break;
             case R.id.add_jybj:
 
@@ -225,7 +227,6 @@ public class jybj_frag extends Activity implements View.OnClickListener{
                 mapforhttp.put("id", getforMap.get("id"));
                 mapforhttp.put("userId", MainActivity.userid);
             }
-
             mapforhttp.put("token", MainActivity.token);
             mapforhttp.put("school", getforMap.get("school"));
             mapforhttp.put("majorIn", getforMap.get("majorIn"));
@@ -243,11 +244,16 @@ public class jybj_frag extends Activity implements View.OnClickListener{
                             final String message = obj.get("message").toString();
                             LogUtils.v("---jsonstr---" + obj.toString());
                             LogUtils.v("message: " + obj.get("message").toString());
+
                             //只能在handler中更新视图
                             getHandler.mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(jybj_frag.this, message, Toast.LENGTH_SHORT).show();
+                                    new MaterialDialog(jybj_frag.this)
+                                            .setTitle("提示")
+                                            .autodismiss(1000)
+                                            .setMessage(message)
+                                            .show();
                                     //更改文字提示
                                     edit_btn.setText("编辑");
                                     //去除单击保存事件，这个时候单击应该变成删除按钮出现
@@ -259,10 +265,13 @@ public class jybj_frag extends Activity implements View.OnClickListener{
                                             addjybj();
                                         }
                                     });
-
-                                    resumeAdapterJybj.changeState(false);
-                                    changeLocalMap(mapforhttp);
-                                    resumeAdapterJybj.notifyDataSetChanged();//刷新视图
+                                    try {
+                                        resumeAdapterJybj.changeState(false);
+                                        changeLocalMap(mapforhttp, obj.get("object").toString());
+                                        resumeAdapterJybj.notifyDataSetChanged();//刷新视图
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             });
                         }
@@ -280,7 +289,7 @@ public class jybj_frag extends Activity implements View.OnClickListener{
     /**
      * 修改掉之后也更新掉当前页面的map,更新视图
      */
-    private void changeLocalMap(HashMap<String,String> mapforhttp) {
+    private void changeLocalMap(HashMap<String,String> mapforhttp,String newid) {
 
         //遍历教育背景datalist,以id为关键字找到对应的Map然后修改
         for(int i = 0 ;i < jybj_datalist.size() ; i++){
@@ -295,7 +304,7 @@ public class jybj_frag extends Activity implements View.OnClickListener{
                 }
             }else{
                 if(jybj_datalist.get(i).get("id").toString()=="0"){
-                    jybj_datalist.get(i).put("id","10000");//10000表示已经修改完毕
+                    jybj_datalist.get(i).put("id",newid);
                     jybj_datalist.get(i).put("school", mapforhttp.get("school").toString());
                     jybj_datalist.get(i).put("majorIn", mapforhttp.get("majorIn").toString());
                     jybj_datalist.get(i).put("education", mapforhttp.get("education").toString());

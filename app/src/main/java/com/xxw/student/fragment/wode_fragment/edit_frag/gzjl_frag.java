@@ -20,6 +20,7 @@ import com.xxw.student.utils.Constant;
 import com.xxw.student.utils.HttpThread;
 import com.xxw.student.utils.LogUtils;
 import com.xxw.student.utils.getHandler;
+import com.xxw.student.view.MaterialDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +43,6 @@ public class gzjl_frag extends Activity implements View.OnClickListener{
     private TextView noneWord;
     private TextView edit_btn;
     private HashMap<String,String> mapforhttp;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +68,11 @@ public class gzjl_frag extends Activity implements View.OnClickListener{
                         add_job_experience.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Toast.makeText(gzjl_frag.this, "有内容未保存，请保存后进行下一步", Toast.LENGTH_SHORT).show();
+                                new MaterialDialog(gzjl_frag.this)
+                                        .setTitle("警告")
+                                        .autodismiss(2000)
+                                        .setMessage("有内容未保存，请保存后进行下一步")
+                                        .show();
                             }
                         });
                         break;
@@ -167,16 +171,16 @@ public class gzjl_frag extends Activity implements View.OnClickListener{
             //这些都是默认值
             map.put("id", "0");//未保存的id都是0,保存以后读取的时候就是从数据库读过来的内容
             map.put("workContext","工作经历");
-            map.put("position", "实习n");
-            map.put("companyName", "x公司");
+            map.put("position", "实习");
+            map.put("companyName", "公司");
             map.put("workDateBegin", "2013-06");
             map.put("workDateEnd","2017-04");
             gzjl_datalist.add(map);
             LogUtils.v(gzjl_datalist.toString());
             //如果没有填写，单击添加之后产生一个新的
             if(resumeAdapterGzjl==null){
-                resumeAdapterGzjl=new ResumeAdapter_gzjl(this,gzjl_frag.this, gzjl_datalist, R.layout.wode_gzjl_edit_ever, new String[] {"workContext","position","companyName","workDateBegin","workDateEnd"},
-                        new int[] {R.id.job_experience, R.id.job, R.id.company, R.id.gz_timeBegin, R.id.gz_timeEnd});
+                resumeAdapterGzjl=new ResumeAdapter_gzjl(this,gzjl_frag.this, gzjl_datalist, R.layout.wode_gzjl_edit_ever, new String[] {"workContext","position","companyName","workDateBegin","workDateEnd","id"},
+                        new int[] {R.id.job_experience, R.id.job, R.id.company, R.id.gz_timeBegin, R.id.gz_timeEnd,R.id.gzjl_list_id});
                 gzjl_list.setAdapter(resumeAdapterGzjl);
 
                 noneWord.setVisibility(View.GONE);
@@ -250,7 +254,11 @@ public class gzjl_frag extends Activity implements View.OnClickListener{
                             getHandler.mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(gzjl_frag.this, message, Toast.LENGTH_SHORT).show();
+                                    new MaterialDialog(gzjl_frag.this)
+                                            .setTitle("警告")
+                                            .autodismiss(2000)
+                                            .setMessage(message)
+                                            .show();
                                     //更改文字提示
                                     edit_btn.setText("编辑");
                                     //去除单击保存事件，这个时候单击应该变成删除按钮出现
@@ -264,7 +272,11 @@ public class gzjl_frag extends Activity implements View.OnClickListener{
                                     });
                                     ResumeAdapter_gzjl.countEdit = -2;//恢复初始状态(因为改变之后还会触发一次edittext的改变，所以必须要把这次抵消掉)抵消掉之后还必须保证不等于0，所以设置为-1
                                     resumeAdapterGzjl.changeState(false);
-                                    changeLocalMap(mapforhttp);//更新视图
+                                    try {
+                                        changeLocalMap(mapforhttp,obj.get("object").toString());//更新视图
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                     resumeAdapterGzjl.notifyDataSetChanged();//刷新视图
                                 }
                             });
@@ -283,7 +295,7 @@ public class gzjl_frag extends Activity implements View.OnClickListener{
     /**
      * 修改掉之后也更新掉当前页面的map,更新视图
      */
-    private void changeLocalMap(HashMap<String,String> mapforhttp) {
+    private void changeLocalMap(HashMap<String,String> mapforhttp,String newid) {
 
         //遍历教育背景datalist,以id为关键字找到对应的Map然后修改
         for(int i = 0 ;i < gzjl_datalist.size() ; i++){
@@ -298,7 +310,7 @@ public class gzjl_frag extends Activity implements View.OnClickListener{
                 }
             }else{
                 if(gzjl_datalist.get(i).get("id").toString()=="0"){
-                    gzjl_datalist.get(i).put("id","10000");//10000表示已经修改完毕
+                    gzjl_datalist.get(i).put("id",newid);//10000表示已经修改完毕
                     gzjl_datalist.get(i).put("position", mapforhttp.get("position").toString());
                     gzjl_datalist.get(i).put("companyName", mapforhttp.get("companyName").toString());
                     gzjl_datalist.get(i).put("workDateBegin", mapforhttp.get("workDateBegin").toString());
