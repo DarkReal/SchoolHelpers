@@ -72,20 +72,18 @@ public class company_detail_job extends Fragment{
                         final String message = obj.get("message").toString();
                         LogUtils.v("message: "+obj.get("message").toString());
                         LogUtils.v("obj"+obj.toString());
-
-
-
+                        kProgressHUD.dismiss();
                         getHandler.mHandler.post(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    if (!obj.get("code").toString().equals("10000"))
+                                    if (!obj.get("code").toString().equals("10000")){
                                         new MaterialDialog(view.getContext())
-                                            .setTitle("警告")
-                                            .autodismiss(2000)
-                                            .setMessage(message)
-                                            .show();
-                                    else {
+                                                .setTitle("警告")
+                                                .autodismiss(2000)
+                                                .setMessage(message)
+                                                .show();
+                                    }else {
                                         //更新帖子列表显示内容
                                         //Toast.makeText(company_detail.this, message, Toast.LENGTH_SHORT).show();
                                         ja = obj.getJSONArray("object");
@@ -122,7 +120,6 @@ public class company_detail_job extends Fragment{
                                                     startActivity(intent);
                                                 }
                                             });
-                                        kProgressHUD.dismiss();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
