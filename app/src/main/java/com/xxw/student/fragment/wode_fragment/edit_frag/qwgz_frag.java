@@ -408,7 +408,6 @@ public class qwgz_frag extends Activity implements View.OnClickListener{
                             getHandler.mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(qwgz_frag.this, message, Toast.LENGTH_SHORT).show();
                                     //更改文字提示
                                     edit_btn.setText("编辑");
                                     //去除单击保存事件，这个时候单击应该变成删除按钮出现
