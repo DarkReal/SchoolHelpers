@@ -94,11 +94,6 @@ public class reset_password extends Activity{
                                                             .show();
                                                 else {
                                                     //验证成功跳转页面
-//                                                    new MaterialDialog(reset_password.this)
-//                                                            .setTitle("警告")
-//                                                            .autodismiss(1000)
-//                                                            .setMessage(message)
-//                                                            .show();
                                                     Intent intent = new Intent();
                                                     intent.setClass(reset_password.this,LoginActivity.class);
                                                     //保存登录状态

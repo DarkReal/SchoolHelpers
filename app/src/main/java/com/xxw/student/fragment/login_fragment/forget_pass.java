@@ -122,63 +122,63 @@ public class forget_pass extends Activity {
         }
     }
     private void yzyzm() {
-//        if(!yzm.getText().toString().equals("")){
-//            HashMap<String,String> map = new HashMap<String, String>();
-//            map.put("phone",phonestr);
-//            map.put("pCode", yzm.getText().toString());
-//            LogUtils.v("map" + map.values().toString());
-//            String url= Constant.getUrl()+"app/user/getCheckCode.htmls";
-//            //验证验证码
-//            try{
-//
-//                HttpThread ht = new HttpThread(url,map){
-//                    @Override
-//                    public void getObj(final JSONObject obj) throws JSONException {
-//                        if(obj!=null){
-//                            final String message = obj.get("message").toString();
-//                            LogUtils.v("message: "+obj.get("message").toString());
-//                            getHandler.mHandler.post(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    try {
-//                                        if (!obj.get("code").toString().equals("10000"))
+        if(!yzm.getText().toString().equals("")){
+            HashMap<String,String> map = new HashMap<String, String>();
+            map.put("phone",phonestr);
+            map.put("pCode", yzm.getText().toString());
+            LogUtils.v("map" + map.values().toString());
+            String url= Constant.getUrl()+"app/user/getCheckCode.htmls";
+            //验证验证码
+            try{
+
+                HttpThread ht = new HttpThread(url,map){
+                    @Override
+                    public void getObj(final JSONObject obj) throws JSONException {
+                        if(obj!=null){
+                            final String message = obj.get("message").toString();
+                            LogUtils.v("message: "+obj.get("message").toString());
+                            getHandler.mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        if (!obj.get("code").toString().equals("10000"))
+                                            new MaterialDialog(forget_pass.this)
+                                                    .setTitle("警告")
+                                                    .autodismiss(1000)
+                                                    .setMessage(message)
+                                                    .show();
+                                        else {
+                                            //验证成功跳转页面
 //                                            new MaterialDialog(forget_pass.this)
 //                                                    .setTitle("警告")
 //                                                    .autodismiss(1000)
-//                                                    .setMessage(message)
+//                                                    .setMessage("验证成功")
 //                                                    .show();
-//                                        else {
-//                                            //验证成功跳转页面
-////                                            new MaterialDialog(forget_pass.this)
-////                                                    .setTitle("警告")
-////                                                    .autodismiss(1000)
-////                                                    .setMessage("验证成功")
-////                                                    .show();
                                             Intent intent = new Intent();
                                             intent.setClass(forget_pass.this,reset_password.class);
                                             intent.putExtra("phonestr",phone.getText().toString());
                                             startActivity(intent);
                                             finish();
                                         }
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                            });
-//
-//                        }
-//                    }
-//                };
-//                ht.start();
-//            }catch (NullPointerException e){
-//                e.printStackTrace();
-//            }
-//        }else{
-//            new MaterialDialog(forget_pass.this)
-//                    .setTitle("警告")
-//                    .autodismiss(1000)
-//                    .setMessage("请填写验证码")
-//                    .show();
-//        }
-//    }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                };
+                ht.start();
+            }catch (NullPointerException e){
+                e.printStackTrace();
+            }
+        }else{
+            new MaterialDialog(forget_pass.this)
+                    .setTitle("警告")
+                    .autodismiss(1000)
+                    .setMessage("请填写验证码")
+                    .show();
+        }
+    }
 }
